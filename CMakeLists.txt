@@ -6,10 +6,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Release)
 
-# Include everything in dependencies
+# Root directories
 set(ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/..)
 set(ROOT_SRC_DIR ${ROOT_DIR}/src)
-set(ROOT_BUILD_DIR ${ROOT_DIR}/build)
 
 #
 # Google Test dependency
