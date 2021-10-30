@@ -1,0 +1,17 @@
+#
+# Ignore everything
+#
+*
+
+#
+# Track the following:
+#
+
+# Root files.
+!.gitignore
+!README.md
+!CMakeLists.txt
+
+# Subprojects' sources.
+!src
+!src/*/
