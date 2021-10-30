@@ -1,0 +1,10 @@
+{
+    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: LLVM, UseTab: Never, PointerAlignment: Left, IndentWidth: 4, TabWidth: 4, BreakBeforeBraces: Allman, AllowShortIfStatementsOnASingleLine: false, IndentCaseLabels: false, ColumnLimit: 0, AccessModifierOffset: -4 }",
+    "C_Cpp.default.cppStandard": "c++11",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/src/ap",
+        "${workspaceFolder}/src/chronometer",
+        "${workspaceFolder}/src/flex_debug",
+        "${workspaceFolder}/src/gtest/gtest/googletest/include"
+    ]
+}

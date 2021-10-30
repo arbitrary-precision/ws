@@ -157,3 +157,13 @@ endif()
 
 # Add include path
 include_directories(${FLEX_DIR})
+
+#
+# Sandbox
+#
+
+set(SANDBOX_SRC_DIR ${ROOT_SRC_DIR}/sandbox)
+set(SANDBOX_SRC_FILES
+${SANDBOX_SRC_DIR}/sandbox.cpp)
+
+add_executable(sandbox ${SANDBOX_SRC_FILES})
