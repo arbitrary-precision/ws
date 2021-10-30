@@ -159,7 +159,7 @@ endif()
 include_directories(${FLEX_DIR})
 
 #
-# Sandbox
+# Subproject sandbox
 #
 
 set(SANDBOX_SRC_DIR ${ROOT_SRC_DIR}/sandbox)
@@ -167,3 +167,14 @@ set(SANDBOX_SRC_FILES
 ${SANDBOX_SRC_DIR}/sandbox.cpp)
 
 add_executable(sandbox ${SANDBOX_SRC_FILES})
+
+#
+# Subproject validate
+#
+
+set(VALIDATE_SRC_DIR ${ROOT_SRC_DIR}/validate)
+set(VALIDATE_SRC_FILES
+${VALIDATE_SRC_DIR}/validate.cpp)
+
+add_executable(validate ${VALIDATE_SRC_FILES})
+target_link_libraries(validate gtest_main)
