@@ -4,7 +4,7 @@ project(ap_workspace)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Root directories.
 set(ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/..)
@@ -173,8 +173,10 @@ include_directories(${BOOST_SRC_DIR})
 #
 
 set(SANDBOX_SRC_DIR ${ROOT_SRC_DIR}/sandbox)
-set(SANDBOX_SRC_FILES
-${SANDBOX_SRC_DIR}/sandbox.cpp)
+set(
+  SANDBOX_SRC_FILES
+  ${SANDBOX_SRC_DIR}/sandbox.cpp
+  )
 
 add_executable(sandbox ${SANDBOX_SRC_FILES})
 
@@ -183,9 +185,22 @@ add_executable(sandbox ${SANDBOX_SRC_FILES})
 #
 
 set(VALIDATE_SRC_DIR ${ROOT_SRC_DIR}/validate)
-set(VALIDATE_SRC_FILES
-${VALIDATE_SRC_DIR}/validate.cpp)
+set(
+  VALIDATE_SRC_FILES
+  ${VALIDATE_SRC_DIR}/alloc.cpp
+  ${VALIDATE_SRC_DIR}/validate.cpp
+  )
 
 add_executable(validate ${VALIDATE_SRC_FILES})
 target_link_libraries(validate gtest_main)
 
+#
+# Target for memory leak testing via valgrind.
+#
+
+add_custom_target(
+  leaktest
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./validate
+  )
+
+add_dependencies(leaktest validate)
