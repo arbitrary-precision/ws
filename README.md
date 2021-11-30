@@ -1,5 +1,4 @@
 git clone https://github.com/arbitrary-precision/ws.git
-cmake --build . --target leaktest
-
-
-
+mkdir b && cd b
+cmake ../
+cmake --build . --target testall
