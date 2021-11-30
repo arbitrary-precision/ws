@@ -12,4 +12,5 @@ ExternalProject_Add(flex_debug
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""
   TEST_COMMAND      ""
+  UPDATE_DISCONNECTED True
 )

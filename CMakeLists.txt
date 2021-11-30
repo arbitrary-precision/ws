@@ -43,7 +43,7 @@ endif()
 # Add include path.
 include_directories(${AP_DIR})
 
-file(GLOB_RECURSE AP_SRC 
+file(GLOB_RECURSE AP_SRC_FILES 
 "${AP_DIR}/*.cpp")
 
 #
@@ -169,38 +169,145 @@ set(BOOST_SRC_DIR ${ROOT_SRC_DIR}/boost)
 include_directories(${BOOST_SRC_DIR})
 
 #
-# Subproject - sandbox.
-#
-
-set(SANDBOX_SRC_DIR ${ROOT_SRC_DIR}/sandbox)
-set(
-  SANDBOX_SRC_FILES
-  ${SANDBOX_SRC_DIR}/sandbox.cpp
-  )
-
-add_executable(sandbox ${SANDBOX_SRC_FILES})
-
-#
 # Subproject - validate.
 #
 
 set(VALIDATE_SRC_DIR ${ROOT_SRC_DIR}/validate)
 set(
   VALIDATE_SRC_FILES
-  ${VALIDATE_SRC_DIR}/alloc.cpp
-  ${VALIDATE_SRC_DIR}/validate.cpp
+  ${AP_SRC_FILES}
+  ${VALIDATE_SRC_DIR}/core/fregister.cpp
+  ${VALIDATE_SRC_DIR}/core/wregister.cpp
+  ${VALIDATE_SRC_DIR}/core/rregister.cpp
+  ${VALIDATE_SRC_DIR}/array/array.cpp
+  ${VALIDATE_SRC_DIR}/asm/cmpres.cpp
+  ${VALIDATE_SRC_DIR}/asm/cmp.cpp
+  ${VALIDATE_SRC_DIR}/asm/trim.cpp
+  ${VALIDATE_SRC_DIR}/asm/cp.cpp
+  ${VALIDATE_SRC_DIR}/asm/fill.cpp
+  ${VALIDATE_SRC_DIR}/asm/twos.cpp
+  ${VALIDATE_SRC_DIR}/asm/add.cpp
+  ${VALIDATE_SRC_DIR}/asm/sub.cpp
+  ${VALIDATE_SRC_DIR}/asm/mul.cpp
+  ${VALIDATE_SRC_DIR}/asm/div.cpp
+  ${VALIDATE_SRC_DIR}/asm/or.cpp
+  ${VALIDATE_SRC_DIR}/asm/xor.cpp
+  ${VALIDATE_SRC_DIR}/asm/and.cpp
+  ${VALIDATE_SRC_DIR}/asm/not.cpp
+  ${VALIDATE_SRC_DIR}/asm/rsh.cpp
+  ${VALIDATE_SRC_DIR}/asm/lsh.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/add.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/and.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/cmp.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/div.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/fstr.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/lsh.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/mul.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/not.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/or.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/rsh.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/scp.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/sub.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/tstr.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/ucp.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/uint/xor.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/add.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/and.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/cmp.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/div.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/fstr.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/lsh.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/mul.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/not.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/or.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/rsh.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/scp.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/stou.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/sub.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/tstr.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/ucp.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/utos.cpp
+  ${VALIDATE_SRC_DIR}/int_alg/sint/xor.cpp
   )
 
-add_executable(validate ${VALIDATE_SRC_FILES})
-target_link_libraries(validate gtest_main)
+add_executable(validate8 ${VALIDATE_SRC_FILES})
+target_compile_options(validate8 PUBLIC
+  -DAP_USE_ASSERT
+  -DAP_WORD=unsigned\ char
+  -DAP_WORD_SIZE=1
+  -DAP_DWORD=unsigned\ short
+  -DAP_DWORD_SIZE=2
+  )
+target_link_libraries(validate8 gtest_main)
+
+add_executable(validate16 ${VALIDATE_SRC_FILES})
+target_compile_options(validate16 PUBLIC
+  -DAP_USE_ASSERT
+  -DAP_WORD=unsigned\ short
+  -DAP_WORD_SIZE=2
+  -DAP_DWORD=unsigned
+  -DAP_DWORD_SIZE=4
+  )
+target_link_libraries(validate16 gtest_main)
+
+add_executable(validate32 ${VALIDATE_SRC_FILES})
+target_compile_options(validate32 PUBLIC
+  -DAP_USE_ASSERT
+  -DAP_WORD=unsigned
+  -DAP_WORD_SIZE=4
+  -DAP_DWORD=unsigned\ long\ long
+  -DAP_DWORD_SIZE=8
+  )
+target_link_libraries(validate32 gtest_main)
+
+add_executable(validatehpp ${VALIDATE_SRC_FILES})
+target_compile_options(validatehpp PUBLIC
+  -DAP_USE_ASSERT
+  )
+target_link_libraries(validatehpp gtest_main)
+
+add_executable(validatecpp ${VALIDATE_SRC_FILES})
+target_compile_options(validatecpp PUBLIC
+  -DAP_USE_ASSERT
+  -DAP_USE_SOURCES
+  )
+target_link_libraries(validatecpp gtest_main)
 
 #
 # Target for memory leak testing via valgrind.
 #
 
 add_custom_target(
-  leaktest
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./validate
+  test8
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./validate8
   )
+add_dependencies(test8 validate8)
 
-add_dependencies(leaktest validate)
+add_custom_target(
+  test16
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./validate16
+  )
+add_dependencies(test16 validate16)
+
+add_custom_target(
+  test32
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./validate32
+  )
+add_dependencies(test32 validate32)
+
+add_custom_target(
+  testhpp
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./validatehpp
+  )
+add_dependencies(testhpp validatehpp)
+
+add_custom_target(
+  testcpp
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./validatecpp
+  )
+add_dependencies(testcpp validatecpp)
+
+add_custom_target(
+  testall
+  )
+add_dependencies(testall test8 test16 test32 testhpp testcpp)
