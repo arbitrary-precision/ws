@@ -1,6 +1,4 @@
-#include "../utils.hpp"
-#include <ap/asm.hpp>
-#include <gtest/gtest.h>
+#include "../common.hpp"
 
 using namespace ap::library;
 
@@ -9,8 +7,13 @@ using namespace ap::library;
 
 TEST(asm, tb_and)
 {
-    REGISTER(left, 1, 1, false, 1);
-    REGISTER(right, 1, 1, false, 1);
-    REGISTER(out, 1, 1, false, WORD5);
-    asm_and(rregister(left), rregister(right), out);
+    AP_REGISTER(l, 1, 1, false, AP_WONLYLB);
+    AP_REGISTER(r, 1, 1, false, AP_WONLYLB);
+    AP_REGISTER(o, 1, 1, false, AP_WCHESS1);
+    asm_and(rregister(l), rregister(r), o);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Unit.
+
+AP_TEST_BIT_SUITE(&, and)

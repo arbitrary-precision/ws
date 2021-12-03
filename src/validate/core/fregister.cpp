@@ -1,177 +1,215 @@
-#include <gtest/gtest.h>
-#include <ap/core.hpp>
+#include "../common.hpp"
 
 using namespace ap::library;
 
-TEST(core, t_fregister_constructor_default)
-{
-    fregister a;
-    ASSERT_EQ(index_t(a), 0);
-}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Build.
 
-TEST(core, t_fregister_constructor_parameters)
+TEST(core, tb_fregister)
 {
-    fregister a{10};
-    ASSERT_EQ(index_t(a), 10);
-}
-
-TEST(core, t_fregister_constructor_copy)
-{
-    fregister a{11};
+    fregister a{};
     fregister b{a};
-    ASSERT_EQ(index_t(b), 11);
+    fregister c{std::move(a)};
+    fregister d;
+    d = b;
+    fregister f;
+    f = std::move(c);
+    index_t i = index_t(f);
+    f = f | d;
+    f = f & d;
+    f = f ^ d;
+    f |= d;
+    f &= d;
+    f ^= d;
+    f = ~f;
+    bool x = (f == d);
+    x = (f != d);
+    f.flip(d);
+    f.set(d);
+    f.unset(d);
+    x = f.has_any(d);
+    x = f.has_all(d);
+    f.clear();
+    x = f.empty();
+    ASSERT_EQ(fregister::noneflag, 0);
+    ASSERT_EQ(fregister::infinity, 1);
+    ASSERT_EQ(fregister::overflow, 2);
+    ASSERT_EQ(fregister::wrapping, 4);
+    ASSERT_EQ(fregister::signflip, 8);
 }
 
-TEST(core, t_fregister_operator_copy_assignment)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Unit.
+
+TEST(core, tu_fregister_ctor_default)
 {
-    fregister a{12};
-    fregister b;
-    b = a;
-    ASSERT_EQ(index_t(b), 12);
+    fregister flags{};
+    ASSERT_EQ(index_t(flags), fregister::noneflag);
 }
 
-TEST(core, t_fregister_constructor_move)
+TEST(core, tu_fregister_ctor_params)
 {
-    fregister a{13};
-    fregister b{std::move(a)};
-    ASSERT_EQ(index_t(b), 13);
+    fregister flags{fregister::infinity};
+    ASSERT_EQ(index_t(flags), fregister::infinity);
 }
 
-TEST(core, t_fregister_operator_move_assignemnt)
+TEST(core, tu_fregister_ctor_copy)
 {
-    fregister a{14};
-    fregister b;
-    b = std::move(a);
-    ASSERT_EQ(index_t(b), 14);
+    fregister flags{fregister::infinity};
+    fregister oflags{flags};
+    ASSERT_EQ(index_t(oflags), fregister::infinity);
 }
 
-TEST(core, t_fregister_operator_index_t)
+TEST(core, tu_fregister_op_assign_copy)
 {
-    fregister a{15};
-    ASSERT_EQ(index_t(a), 15);
+    fregister flags{fregister::infinity};
+    fregister oflags;
+    oflags = flags;
+    ASSERT_EQ(index_t(oflags), fregister::infinity);
 }
 
-TEST(core, t_fregister_operator_or)
+TEST(core, tu_fregister_ctor_move)
 {
-    fregister a{16};
-    fregister b{32};
-    ASSERT_EQ(index_t(a | b), 48);
+    fregister flags{fregister::infinity};
+    fregister oflags{std::move(flags)};
+    ASSERT_EQ(index_t(oflags), fregister::infinity);
 }
 
-TEST(core, t_fregister_operator_and)
+TEST(core, tu_fregister_op_assign_move)
 {
-    fregister a{48};
-    fregister b{32};
-    ASSERT_EQ(index_t(a & b), 32);
+    fregister flags{fregister::infinity};
+    fregister oflags;
+    oflags = std::move(flags);
+    ASSERT_EQ(index_t(oflags), fregister::infinity);
 }
 
-TEST(core, t_fregister_operator_xor)
+TEST(core, tu_fregister_op_index_t)
 {
-    fregister a{48};
-    fregister b{32};
-    ASSERT_EQ(index_t(a ^ b), 16);
+    fregister flags{fregister::infinity};
+    ASSERT_EQ(index_t(flags), fregister::infinity);
 }
 
-TEST(core, t_fregister_operator_or_assignemnt)
+TEST(core, tu_fregister_op_or)
 {
-    fregister a{16};
-    fregister b{32};
-    a |= b;
-    ASSERT_EQ(index_t(a), 48);
+    fregister flags{fregister::overflow};
+    fregister oflags{fregister::signflip};
+    ASSERT_EQ(index_t(flags| oflags), fregister::signflip | fregister::overflow);
 }
 
-TEST(core, t_fregister_operator_and_assignemnt)
+TEST(core, tu_fregister_op_and)
 {
-    fregister a{48};
-    fregister b{32};
-    a &= b;
-    ASSERT_EQ(index_t(a), 32);
+    fregister flags{fregister::signflip | fregister::overflow};
+    fregister oflags{fregister::signflip};
+    ASSERT_EQ(index_t(flags & oflags), fregister::signflip);
 }
 
-TEST(core, t_fregister_operator_xor_assignemnt)
+TEST(core, tu_fregister_op_xor)
 {
-    fregister a{48};
-    fregister b{32};
-    a ^= b;
-    ASSERT_EQ(index_t(a), 16);
+    fregister flags{fregister::signflip | fregister::overflow};
+    fregister oflags{fregister::signflip};
+    ASSERT_EQ(index_t(flags ^ oflags), fregister::overflow);
 }
 
-TEST(core, t_fregister_operator_not)
+TEST(core, tu_fregister_op_or_assign)
 {
-    fregister a{2};
-    a = ~a;
-    ASSERT_EQ(index_t(a), ~index_t{2});
+    fregister flags{fregister::overflow};
+    fregister oflags{fregister::signflip};
+    flags |= oflags;
+    ASSERT_EQ(index_t(flags), fregister::signflip | fregister::overflow);
 }
 
-TEST(core, t_fregister_operator_equal)
+TEST(core, tu_fregister_op_and_assign)
 {
-    fregister a{48};
-    fregister b{48};
-    ASSERT_TRUE(a == b);
-    b = 32;
-    ASSERT_FALSE(a == b);
+    fregister flags{fregister::signflip | fregister::overflow};
+    fregister oflags{fregister::signflip};
+    flags &= oflags;
+    ASSERT_EQ(index_t(flags), fregister::signflip);
 }
 
-TEST(core, t_fregister_operator_not_equal)
+TEST(core, tu_fregister_op_xor_assign)
 {
-    fregister a{48};
-    fregister b{32};
-    ASSERT_TRUE(a != b);
-    b = 48;
-    ASSERT_FALSE(a != b);
+    fregister flags{fregister::signflip | fregister::overflow};
+    fregister oflags{fregister::signflip};
+    flags ^= oflags;
+    ASSERT_EQ(index_t(flags), fregister::overflow);
 }
 
-TEST(core, t_fregister_flip)
+TEST(core, tu_fregister_op_not)
 {
-    fregister a{48};
-    fregister b{48};
-    a.flip(b);
-    ASSERT_EQ(index_t(a), 0);
-    a.flip(b);
-    ASSERT_EQ(index_t(a), 48);
+    fregister flags{fregister::overflow};
+    flags = ~flags;
+    ASSERT_EQ(index_t(flags), ~index_t{fregister::overflow});
 }
 
-TEST(core, t_fregister_set)
+TEST(core, tu_fregister_op_eq)
 {
-    fregister a{0};
-    a.set(48);
-    ASSERT_EQ(index_t(a), 48);
+    fregister flags{fregister::overflow};
+    fregister oflags{fregister::overflow};
+    ASSERT_TRUE(flags == oflags);
+    oflags = fregister::wrapping;
+    ASSERT_FALSE(flags == oflags);
 }
 
-TEST(core, t_fregister_unset)
+TEST(core, tu_fregister_op_ne)
 {
-    fregister a{48};
-    a.unset(32);
-    ASSERT_EQ(index_t(a), 16);
+    fregister flags{fregister::wrapping};
+    fregister oflags{fregister::overflow};
+    ASSERT_TRUE(flags != oflags);
+    flags = fregister::overflow;
+    ASSERT_FALSE(flags != oflags);
 }
 
-TEST(core, t_fregister_has_any)
+TEST(core, tu_fregister_flip)
 {
-    fregister a{48};
-    ASSERT_TRUE(a.has_any(32));
-    ASSERT_FALSE(a.has_any(15));
-    ASSERT_TRUE(a.has_any(31));
+    fregister flags{fregister::wrapping | fregister::infinity};
+    fregister oflags{fregister::wrapping};
+    flags.flip(oflags);
+    ASSERT_EQ(index_t(flags), fregister::infinity);
+    flags.flip(oflags);
+    ASSERT_EQ(index_t(flags), fregister::infinity | fregister::wrapping);
 }
 
-TEST(core, t_fregister_has_all)
+TEST(core, tu_fregister_set)
 {
-    fregister a{48};
-    ASSERT_TRUE(a.has_all(48));
-    ASSERT_TRUE(a.has_all(16));
-    ASSERT_FALSE(a.has_all(49));
+    fregister flags{};
+    flags.set(fregister::wrapping);
+    ASSERT_EQ(index_t(flags), fregister::wrapping);
 }
 
-TEST(core, t_fregister_clear)
+TEST(core, tu_fregister_unset)
 {
-    fregister a{48};
-    a.clear();
-    ASSERT_EQ(index_t(a), 0);
+    fregister flags{fregister::wrapping | fregister::infinity};
+    flags.unset(fregister::wrapping);
+    ASSERT_EQ(index_t(flags), fregister::infinity);
 }
 
-TEST(core, t_fregister_empty)
+TEST(core, tu_fregister_has_any)
 {
-    fregister a{48};
-    ASSERT_FALSE(a.empty());
-    a.clear();
-    ASSERT_TRUE(a.empty());
+    fregister flags{fregister::wrapping | fregister::infinity};
+    ASSERT_TRUE(flags.has_any(fregister::wrapping));
+    ASSERT_TRUE(flags.has_any(fregister::wrapping | fregister::signflip));
+    ASSERT_FALSE(flags.has_any(fregister::signflip));
+}
+
+TEST(core, tu_fregister_has_all)
+{
+    fregister flags{fregister::wrapping | fregister::infinity};
+    ASSERT_TRUE(flags.has_all(fregister::wrapping));
+    ASSERT_TRUE(flags.has_all(fregister::wrapping | fregister::infinity));
+    ASSERT_FALSE(flags.has_all(fregister::wrapping | fregister::signflip));
+}
+
+TEST(core, tu_fregister_clear)
+{
+    fregister flags{fregister::wrapping | fregister::infinity};
+    flags.clear();
+    ASSERT_EQ(index_t(flags), fregister::noneflag);
+}
+
+TEST(core, tu_fregister_empty)
+{
+    fregister flags{fregister::wrapping | fregister::infinity};
+    ASSERT_FALSE(flags.empty());
+    flags.clear();
+    ASSERT_TRUE(flags.empty());
 }
