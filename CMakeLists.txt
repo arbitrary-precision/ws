@@ -178,25 +178,42 @@ set(
   ${AP_SRC_FILES}
   ${VALIDATE_SRC_DIR}/array/array.cpp
   ${VALIDATE_SRC_DIR}/asm/add.cpp
-  ${VALIDATE_SRC_DIR}/asm/and.cpp
-  ${VALIDATE_SRC_DIR}/asm/cmpres.cpp
+  ${VALIDATE_SRC_DIR}/asm/bit.cpp
   ${VALIDATE_SRC_DIR}/asm/cmp.cpp
+  ${VALIDATE_SRC_DIR}/asm/cmpres.cpp
   ${VALIDATE_SRC_DIR}/asm/cp.cpp
   ${VALIDATE_SRC_DIR}/asm/div_short.cpp
   ${VALIDATE_SRC_DIR}/asm/div.cpp
+  ${VALIDATE_SRC_DIR}/asm/fill.cpp
+  ${VALIDATE_SRC_DIR}/asm/lsh.cpp
   ${VALIDATE_SRC_DIR}/asm/mul_short.cpp
   ${VALIDATE_SRC_DIR}/asm/mul.cpp
-  ${VALIDATE_SRC_DIR}/asm/fill.cpp
   ${VALIDATE_SRC_DIR}/asm/trim.cpp
-  ${VALIDATE_SRC_DIR}/asm/twos.cpp
-  ${VALIDATE_SRC_DIR}/asm/sub.cpp
-  ${VALIDATE_SRC_DIR}/asm/or.cpp
-  ${VALIDATE_SRC_DIR}/asm/xor.cpp
   ${VALIDATE_SRC_DIR}/asm/not.cpp
   ${VALIDATE_SRC_DIR}/asm/rsh.cpp
-  ${VALIDATE_SRC_DIR}/asm/lsh.cpp
-  ${VALIDATE_SRC_DIR}/core/fregister.cpp
+  ${VALIDATE_SRC_DIR}/asm/sub.cpp
+  ${VALIDATE_SRC_DIR}/asm/twos.cpp
   ${VALIDATE_SRC_DIR}/core/dregister.cpp
+  ${VALIDATE_SRC_DIR}/core/fregister.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_add.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_and.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_fbasic.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_fstr.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_lsh.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_mul.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_not.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_or.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_quo.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_rem.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_rsh.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_scp.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_sub.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_tbasic.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_tos.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_tou.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_tstr.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_tstr.cpp
+  ${VALIDATE_SRC_DIR}/int_api/xapi_xor.cpp
   ${VALIDATE_SRC_DIR}/int_handle/int_handle.cpp
   )
 
@@ -206,6 +223,7 @@ target_compile_options(validate8 PUBLIC
   -DAP_WORD_SIZE=1
   -DAP_DWORD=unsigned\ short
   -DAP_DWORD_SIZE=2
+  -O0
   )
 target_link_libraries(validate8 gtest_main)
 
@@ -215,6 +233,7 @@ target_compile_options(validate16 PUBLIC
   -DAP_WORD_SIZE=2
   -DAP_DWORD=unsigned
   -DAP_DWORD_SIZE=4
+  -O0
   )
 target_link_libraries(validate16 gtest_main)
 
@@ -224,17 +243,20 @@ target_compile_options(validate32 PUBLIC
   -DAP_WORD_SIZE=4
   -DAP_DWORD=unsigned\ long\ long
   -DAP_DWORD_SIZE=8
+  -O0
   )
 target_link_libraries(validate32 gtest_main)
 
 add_executable(validatehpp ${VALIDATE_SRC_FILES})
 target_compile_options(validatehpp PUBLIC
+  -O0
   )
 target_link_libraries(validatehpp gtest_main)
 
 add_executable(validatecpp ${VALIDATE_SRC_FILES})
 target_compile_options(validatecpp PUBLIC
   -DAP_USE_SOURCES
+  -O0
   )
 target_link_libraries(validatecpp gtest_main)
 
@@ -244,35 +266,40 @@ target_link_libraries(validatecpp gtest_main)
 
 add_custom_target(
   test8
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-8.txt ./validate8
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-8.txt ./validate8 --gtest_break_on_failure
   )
 add_dependencies(test8 validate8)
 
 add_custom_target(
   test16
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-16.txt ./validate16
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-16.txt ./validate16 --gtest_break_on_failure
   )
 add_dependencies(test16 validate16)
 
 add_custom_target(
   test32
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-32.txt ./validate32
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-32.txt ./validate32 --gtest_break_on_failure
   )
 add_dependencies(test32 validate32)
 
 add_custom_target(
   testhpp
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-hpp.txt ./validatehpp
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-hpp.txt ./validatehpp --gtest_break_on_failure
   )
 add_dependencies(testhpp validatehpp)
 
 add_custom_target(
   testcpp
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-cpp.txt ./validatecpp
+  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out-cpp.txt ./validatecpp --gtest_break_on_failure
   )
 add_dependencies(testcpp validatecpp)
 
 add_custom_target(
-  testall
+  testw
   )
-add_dependencies(testall test8 test16 test32 testhpp testcpp)
+add_dependencies(testw test8 test16 test32)
+
+add_custom_target(
+  testa
+  )
+add_dependencies(testa test8 test16 test32 testhpp testcpp)

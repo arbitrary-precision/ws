@@ -2,10 +2,7 @@
 
 using namespace ap::library;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(asm, tb_dregister)
+TEST(core_dregister, build)
 {
     wregister a{};
     wregister b{a};
@@ -21,10 +18,7 @@ TEST(asm, tb_dregister)
     f.clear_msb();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
-
-TEST(core, tu_dregister_ctor_default)
+TEST(core_dregister, ctor_d)
 {
     wregister reg{};
     ASSERT_EQ(reg.words, nullptr);
@@ -33,7 +27,7 @@ TEST(core, tu_dregister_ctor_default)
     ASSERT_EQ(reg.sign, 0);
 }
 
-TEST(core, tu_dregister_ctor_params)
+TEST(core_dregister, ctor_p)
 {
     word_t arr[5];
     wregister reg{&arr[0], 5, 1, true};
@@ -43,7 +37,7 @@ TEST(core, tu_dregister_ctor_params)
     ASSERT_EQ(reg.sign, 1);
 }
 
-TEST(core, tu_dregister_ctor_copy)
+TEST(core_dregister, ctor_c)
 {
     word_t arr[5];
     wregister oreg{&arr[0], 5, 1, true};
@@ -54,7 +48,7 @@ TEST(core, tu_dregister_ctor_copy)
     ASSERT_EQ(reg.sign, 1);
 }
 
-TEST(core, tu_dregister_op_copy_assign)
+TEST(core_dregister, op_copy_assign)
 {
     word_t arr[5];
     wregister oreg{&arr[0], 5, 1, true};
@@ -66,7 +60,7 @@ TEST(core, tu_dregister_op_copy_assign)
     ASSERT_EQ(reg.sign, 1);
 }
 
-TEST(core, tu_dregister_ctor_move)
+TEST(core_dregister, ctor_m)
 {
     word_t arr[5];
     wregister oreg{&arr[0], 5, 1, true};
@@ -77,7 +71,7 @@ TEST(core, tu_dregister_ctor_move)
     ASSERT_EQ(reg.sign, 1);
 }
 
-TEST(core, tu_dregister_op_move_assign)
+TEST(core_dregister, op_move_assign)
 {
     word_t arr[5];
     wregister oreg{&arr[0], 5, 1, true};
@@ -89,7 +83,7 @@ TEST(core, tu_dregister_op_move_assign)
     ASSERT_EQ(reg.sign, 1);
 }
 
-TEST(core, tu_dregister_op_dregister_const_word)
+TEST(core_dregister, op_dregister_const_word)
 {
     word_t arr[5];
     wregister oreg{&arr[0], 5, 1, true};
@@ -100,28 +94,28 @@ TEST(core, tu_dregister_op_dregister_const_word)
     ASSERT_EQ(reg.sign, 1);
 }
 
-TEST(core, tu_dregister_has_msb_nomsb_short)
+TEST(core_dregister, has_msb_nomsb_short)
 {
     word_t arr[5] = {1, 2, 3, 4, word_traits::ones};
     wregister oreg{&arr[0], 5, 4, true};
     ASSERT_FALSE(oreg.has_msb());
 }
 
-TEST(core, tu_dregister_has_msb_nomsb_full)
+TEST(core_dregister, has_msb_nomsb_full)
 {
     word_t arr[5] = {1, 2, 3, 4, 5};
     wregister oreg{&arr[0], 5, 5, true};
     ASSERT_FALSE(oreg.has_msb());
 }
 
-TEST(core, tu_dregister_has_msb_with_msb)
+TEST(core_dregister, has_msb_with_msb)
 {
     word_t arr[5] = {1, 2, 3, 4, word_traits::ones};
     wregister oreg{&arr[0], 5, 5, true};
     ASSERT_TRUE(oreg.has_msb());
 }
 
-TEST(core, tu_dregister_clear_msb)
+TEST(core_dregister, clear_msb)
 {
     word_t arr[5] = {1, 2, 3, 4, word_traits::ones};
     wregister oreg{&arr[0], 5, 5, true};

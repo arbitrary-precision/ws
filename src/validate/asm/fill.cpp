@@ -1,20 +1,15 @@
 #include "../common.hpp"
 
-using namespace ap::library;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(asm, tb_fill)
+TEST(asm_fill, build)
 {
     AP_REGISTER(x, 1, 1, false, 0);
     asm_fill(x, AP_WCHESS1);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
+// Name: [inout size]
 
-TEST(asm, tu_fill_z)
+TEST(asm_fill, z)
 {
     AP_REGISTER(x, 4, 0, false, 0);
     AP_REGISTER(e, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -22,7 +17,7 @@ TEST(asm, tu_fill_z)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_fill_o)
+TEST(asm_fill, o)
 {
     AP_REGISTER(x, 4, 1, false, 1);
     AP_REGISTER(e, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -30,7 +25,7 @@ TEST(asm, tu_fill_o)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_fill_h)
+TEST(asm_fill, h)
 {
     AP_REGISTER(x, 4, 2, false, 1, 2);
     AP_REGISTER(e, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -38,7 +33,7 @@ TEST(asm, tu_fill_h)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_fill_f)
+TEST(asm_fill, f)
 {
     AP_REGISTER(x, 4, 4, false, 1, 2, 3, 4);
     AP_REGISTER(e, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);

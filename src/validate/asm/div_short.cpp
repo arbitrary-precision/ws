@@ -1,11 +1,7 @@
 #include "../common.hpp"
 
-using namespace ap::library;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(asm, tb_div_short)
+TEST(asm_div_short, build)
 {
     AP_REGISTER(l, 2, 2, false, 1, 1);
     AP_REGISTER(q, 2, 2, false, AP_WHEPROT, AP_WHEPROT);
@@ -13,11 +9,18 @@ TEST(asm, tb_div_short)
     asm_div_short(rregister(l), 1, q, m);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
-
-#define AP_TEST_DIV(p, ls, l4, l3, l2, l1, qs, q4, q3, q2, q1, ms, m4, m3, m2, m1)   \
-    TEST(asm, tu_div_short_##p)                                                      \
+// Macro call structure:
+// name,
+//         ls      l4          l3          l2          l1
+//         qs      q4          q3          q2          q1
+//         rs      r4          r3          r2          r1
+// name  - [left size] [left trimmed] [operation (quotient or remainder)]
+// l/q/r - left/expected quotient/expected remainder
+// xs    - size
+// x4    - the most significant word
+// x1    - the least significant word
+#define AP_TEST_DIV(n, ls, l4, l3, l2, l1, qs, q4, q3, q2, q1, ms, m4, m3, m2, m1)    \
+    TEST(asm_div_short, n)                                                           \
     {                                                                                \
         AP_REGISTER(l, 4, ls, false, l1, l2, l3, l4);                                \
         AP_REGISTER(q, 4, 0, false, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT); \
@@ -29,67 +32,57 @@ TEST(asm, tb_div_short)
         AP_ASSERT_REG(m, em);                                                        \
     }
 
-// Macro call structure:
-// prefix,
-//         ls      l4          l3          l2          l1
-//         qs      q4          q3          q2          q1
-//         rs      r4          r3          r2          r1
-// l/q/r - left/expected quotient/expected remainder
-// s - size
-// x4 - the most significant word
-// x1 - the least significant word
-
-AP_TEST_DIV(oqt,
+AP_TEST_DIV(otq,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYHW,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);
 
-AP_TEST_DIV(oqu,
+AP_TEST_DIV(ouq,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);
 
-AP_TEST_DIV(hqt,
+AP_TEST_DIV(htq,
             2, AP_WHEPROT, AP_WHEPROT, AP_WFILLED, AP_WONLYHW,
             2, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW, AP_WFILLED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);
 
-AP_TEST_DIV(hqu,
+AP_TEST_DIV(huq,
             2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WONLYHW,
             2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WONLYLW,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);
 
-AP_TEST_DIV(fqt,
+AP_TEST_DIV(ftq,
             4, AP_WONLYLW, AP_WFILLED, AP_WFILLED, AP_WONLYHW,
             4, AP_WZEROED, AP_WFILLED, AP_WFILLED, AP_WFILLED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);
 
-AP_TEST_DIV(fqu,
+AP_TEST_DIV(fuq,
             4, AP_WZEROED, AP_WFILLED, AP_WFILLED, AP_WONLYHW,
             4, AP_WZEROED, AP_WONLYLW, AP_WFILLED, AP_WFILLED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);
 
-AP_TEST_DIV(ort,
+AP_TEST_DIV(otr,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WFILLED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW);
 
-AP_TEST_DIV(hrt,
+AP_TEST_DIV(htr,
             2, AP_WHEPROT, AP_WHEPROT, AP_WFILLED, AP_WFILLED,
             2, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW, AP_WFILLED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW);
 
-AP_TEST_DIV(hru,
+AP_TEST_DIV(hur,
             2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WFILLED,
             2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WONLYLW,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW);
 
-AP_TEST_DIV(frt,
+AP_TEST_DIV(ftr,
             4, AP_WONLYLW, AP_WFILLED, AP_WFILLED, AP_WFILLED,
             4, AP_WZEROED, AP_WFILLED, AP_WFILLED, AP_WFILLED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW);
 
-AP_TEST_DIV(fru,
+AP_TEST_DIV(fur,
             4, AP_WZEROED, AP_WFILLED, AP_WFILLED, AP_WFILLED,
             4, AP_WZEROED, AP_WONLYLW, AP_WFILLED, AP_WFILLED,
             1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WONLYLW);

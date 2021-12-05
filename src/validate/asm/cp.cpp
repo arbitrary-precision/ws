@@ -1,21 +1,16 @@
 #include "../common.hpp"
 
-using namespace ap::library;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(asm, tb_cp)
+TEST(asm_cp, build)
 {
     AP_REGISTER(i, 1, 1, false, 1);
     AP_REGISTER(o, 1, 1, false, 1);
     asm_cp(rregister(i), o);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
+// Name - [in size] [in trimmed]
 
-TEST(asm, tu_cp_zt)
+TEST(asm_cp, zt)
 {
     AP_REGISTER(i, 4, 0, false, 1);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -24,7 +19,7 @@ TEST(asm, tu_cp_zt)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_cp_ot)
+TEST(asm_cp, ot)
 {
     AP_REGISTER(i, 4, 1, false, 1);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -33,7 +28,7 @@ TEST(asm, tu_cp_ot)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_cp_ht)
+TEST(asm_cp, ht)
 {
     AP_REGISTER(i, 4, 2, false, 1, 2);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -42,7 +37,7 @@ TEST(asm, tu_cp_ht)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_cp_ft)
+TEST(asm_cp, ft)
 {
     AP_REGISTER(i, 4, 4, false, 1, 2, 3, 4);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -51,7 +46,7 @@ TEST(asm, tu_cp_ft)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_cp_uo)
+TEST(asm_cp, uo)
 {
     AP_REGISTER(i, 4, 1, false, 0);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -60,7 +55,7 @@ TEST(asm, tu_cp_uo)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_cp_hu)
+TEST(asm_cp, hu)
 {
     AP_REGISTER(i, 4, 2, false, 1, 0);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -69,7 +64,7 @@ TEST(asm, tu_cp_hu)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_cp_fu)
+TEST(asm_cp, fu)
 {
     AP_REGISTER(i, 4, 4, false, 1, 2, 0, 0);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);

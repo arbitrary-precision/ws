@@ -1,26 +1,16 @@
 #include "../common.hpp"
 
-using namespace ap::library;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(asm, tb_cmp)
+TEST(asm_cmp, build)
 {
     AP_REGISTER(l, 1, 1, false, 1);
     AP_REGISTER(r, 1, 1, false, 1);
     asm_cmp(rregister(l), rregister(r));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
-
-// tu_cmp_OTW
-// O - outcome, less (l), greater (g), equal (e)
-// T - trimmed (t) or untrimmed (u)
-// W - where unequal, begin (b), middle (m), end (e), none (n)
-
-TEST(asm, tu_cmp_entt)
+// Name: [outcome] [where unequality occurs] [left trimmed] [right trimmed]
+// Outcome is (l)ess, (g)reater, (e)qual.
+// Unequality occurs (n)owhere (equal), (e)nd, (m)iddle, (b)egin.
+TEST(asm_cmp, entt)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 5);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 5);
@@ -29,7 +19,7 @@ TEST(asm, tu_cmp_entt)
     ASSERT_EQ(result.size, 0);
 }
 
-TEST(asm, tu_cmp_lett)
+TEST(asm_cmp, lett)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 4);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 5);
@@ -38,7 +28,7 @@ TEST(asm, tu_cmp_lett)
     ASSERT_EQ(result.size, 5);
 }
 
-TEST(asm, tu_cmp_lmtt)
+TEST(asm_cmp, lmtt)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 2, 4, 5);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 5);
@@ -47,7 +37,7 @@ TEST(asm, tu_cmp_lmtt)
     ASSERT_EQ(result.size, 3);
 }
 
-TEST(asm, tu_cmp_lbtt)
+TEST(asm_cmp, lbtt)
 {
     AP_REGISTER(l, 5, 5, false, 0, 2, 3, 4, 5);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 5);
@@ -56,7 +46,7 @@ TEST(asm, tu_cmp_lbtt)
     ASSERT_EQ(result.size, 1);
 }
 
-TEST(asm, tu_cmp_gett)
+TEST(asm_cmp, gett)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 5);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 4);
@@ -65,7 +55,7 @@ TEST(asm, tu_cmp_gett)
     ASSERT_EQ(result.size, 5);
 }
 
-TEST(asm, tu_cmp_gmtt)
+TEST(asm_cmp, gmtt)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 5);
     AP_REGISTER(r, 5, 5, false, 1, 2, 2, 4, 5);
@@ -74,7 +64,7 @@ TEST(asm, tu_cmp_gmtt)
     ASSERT_EQ(result.size, 3);
 }
 
-TEST(asm, tu_cmp_gbtt)
+TEST(asm_cmp, gbtt)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 5);
     AP_REGISTER(r, 5, 5, false, 0, 2, 3, 4, 5);
@@ -83,7 +73,7 @@ TEST(asm, tu_cmp_gbtt)
     ASSERT_EQ(result.size, 1);
 }
 
-TEST(asm, tu_cmp_enuu)
+TEST(asm_cmp, enuu)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 0);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 0);
@@ -92,7 +82,7 @@ TEST(asm, tu_cmp_enuu)
     ASSERT_EQ(result.size, 0);
 }
 
-TEST(asm, tu_cmp_leuu)
+TEST(asm_cmp, leuu)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 0);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 5);
@@ -101,7 +91,7 @@ TEST(asm, tu_cmp_leuu)
     ASSERT_EQ(result.size, 5);
 }
 
-TEST(asm, tu_cmp_lmuu)
+TEST(asm_cmp, lmuu)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 2, 0, 0);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 0, 0);
@@ -110,7 +100,7 @@ TEST(asm, tu_cmp_lmuu)
     ASSERT_EQ(result.size, 3);
 }
 
-TEST(asm, tu_cmp_lbuu)
+TEST(asm_cmp, lbuu)
 {
     AP_REGISTER(l, 5, 5, false, 0, 2, 3, 0, 0);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 0, 0);
@@ -119,7 +109,7 @@ TEST(asm, tu_cmp_lbuu)
     ASSERT_EQ(result.size, 1);
 }
 
-TEST(asm, tu_cmp_geuu)
+TEST(asm_cmp, geuu)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 4, 5);
     AP_REGISTER(r, 5, 5, false, 1, 2, 3, 4, 0);
@@ -128,7 +118,7 @@ TEST(asm, tu_cmp_geuu)
     ASSERT_EQ(result.size, 5);
 }
 
-TEST(asm, tu_cmp_gmuu)
+TEST(asm_cmp, gmuu)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 0, 0);
     AP_REGISTER(r, 5, 5, false, 1, 2, 2, 0, 0);
@@ -137,7 +127,7 @@ TEST(asm, tu_cmp_gmuu)
     ASSERT_EQ(result.size, 3);
 }
 
-TEST(asm, tu_cmp_gbuu)
+TEST(asm_cmp, gbuu)
 {
     AP_REGISTER(l, 5, 5, false, 1, 2, 3, 0, 0);
     AP_REGISTER(r, 5, 5, false, 0, 2, 3, 0, 0);

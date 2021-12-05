@@ -2,34 +2,29 @@
 #define DEOHAYER_AP_VALIDATE_UTILS_HPP
 
 #include <ap/int.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <flex_debug/flex_debug.h>
 #include <gtest/gtest.h>
 #include <type_traits>
-#include <flex_debug/flex_debug.h>
 
 using namespace ap::library;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit testing.
+// Common defines, used everywhere.
 
-// Computation base.
-#define AP_BASE (dword_t{word_traits::ones} + 1)
+// Sign constants.
+// Positive, mnemonic in test name is u
+#define AP_P false
+// Negative, mnemonic in test name is s
+#define AP_N true
 
-// Initialize wregister.
-#define AP_REGISTER(name, capacity, size, sign, ...) \
-    word_t name##_arr[capacity] = {__VA_ARGS__};     \
-    wregister name { name##_arr, capacity, size, sign }
+// Signedness prefix.
+// No sign
+#define AP_S s
+// Has sign
+#define AP_U u
 
-// Compare two registers.
-#define AP_ASSERT_REG(reg1, reg2)                                  \
-    ASSERT_EQ(reg1.sign, reg2.sign);                               \
-    ASSERT_EQ(reg1.capacity, reg2.capacity);                       \
-    ASSERT_EQ(reg1.size, reg2.size);                               \
-    for (index_t index = 0; index < reg1.size; ++index)            \
-    {                                                              \
-        ASSERT_EQ(LLU(reg1.words[index]), LLU(reg2.words[index])); \
-    }                                                              \
-    (void)0
-
+// word_t patterns as integer values (may be bigger then word_t, but wrapping does the trick)
 // All zeros.
 #define AP_WZEROED (word_traits::zeros)
 // All ones.
@@ -53,253 +48,380 @@ using namespace ap::library;
 // Human error protection. Must be set as value non-significant words (beyond the size).
 #define AP_WHEPROT (word_t(0x66666666))
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Bitwise operation test suite macro.
+// Initialize wregister.
+#define AP_REGISTER(name, capacity, size, sign, ...) \
+    word_t name##_arr[capacity] = {__VA_ARGS__};     \
+    wregister name { name##_arr, capacity, size, sign }
 
-#define AP_TEST_BIT(p, op, opf, ls, l4, l3, l2, l1, rs, r4, r3, r2, r1) \
-    TEST(asm, tu_##opf##_##p)                                           \
-    {                                                                   \
-        word_t e1 = l1 op(rs > 0 ? r1 : AP_WZEROED);                    \
-        word_t e2 = l2 op(rs > 1 ? r2 : AP_WZEROED);                    \
-        word_t e3 = l3 op(rs > 2 ? r3 : AP_WZEROED);                    \
-        word_t e4 = l4 op(rs > 3 ? r4 : AP_WZEROED);                    \
-        AP_REGISTER(l, 4, ls, false, l1, l2, l3, l4);                   \
-        AP_REGISTER(r, 4, rs, false, r1, r2, r3, r4);                   \
-        AP_REGISTER(e, 4, ls, false, e1, e2, e3, e4);                   \
-        AP_REGISTER(o, 4, 0, false);                                    \
-        asm_##opf(rregister(l), rregister(r), o);                       \
-        AP_ASSERT_REG(o, e);                                            \
+// Compare two registers.
+#define AP_ASSERT_REG(reg1, reg2)                                  \
+    ASSERT_EQ(reg1.sign, reg2.sign);                               \
+    ASSERT_EQ(reg1.capacity, reg2.capacity);                       \
+    ASSERT_EQ(reg1.size, reg2.size);                               \
+    for (index_t index = 0; index < reg1.size; ++index)            \
+    {                                                              \
+        ASSERT_EQ(LLU(reg1.words[index]), LLU(reg2.words[index])); \
+    }                                                              \
+    (void)0
+
+// Print register (for debugging).
+#define AP_PRINT_REG(reg)                                                                                   \
+    std::cout << "REG " #reg ":" << (reg.sign ? " - " : " + ") << reg.capacity << " " << reg.size << " [ "; \
+    for (index_t index = reg.size; index > 0;)                                                              \
+    {                                                                                                       \
+        --index;                                                                                            \
+        std::cout << std::hex << LLU(reg.words[index]) << " ";                                              \
+    }                                                                                                       \
+    std::cout << "]" << std::dec << std::endl
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Common defines, but used on int and user level API (integer interface, xint_* functions)
+
+// Capacity use cases (in bytes). Minimum possible (1 word), maximum (custom) and somewhere in the middle.
+enum apt_cap
+{
+    CMIN,
+    CMID,
+    CMAX,
+    COUNT
+};
+
+#define AP_MIN_CAP word_traits::bytes
+#define AP_MID_CAP 16
+#define AP_MAX_CAP 32
+
+// Get actual capacity in bytes.
+static inline index_t apt_gcap(apt_cap c)
+{
+    static const index_t cs[apt_cap::COUNT] = {AP_MIN_CAP, AP_MID_CAP, AP_MAX_CAP};
+    return cs[c];
+}
+
+// Get actual capacity in words.
+static inline index_t apt_gcapw(apt_cap c)
+{
+    return apt_gcap(c) / word_traits::bytes;
+}
+
+// Size use cases: zero, one, half of capacity, full capacity.
+enum apt_size
+{
+    SZ, // z mnemonic in unit test name
+    SO, // o mnemonic in unit test name
+    SH, // h mnemonic in unit test name
+    SF, // f mnemonic in unit test name
+    SCOUNT
+};
+
+// Size in bytes.
+static inline index_t apt_gsize(apt_size s, apt_cap c)
+{
+    switch (s)
+    {
+    case apt_size::SZ:
+        return 0;
+    case apt_size::SO:
+        return 1;
+    case apt_size::SH:
+        return (apt_gcap(c) / 2);
+    case apt_size::SF:
+        return apt_gcap(c);
+    default:
+        throw std::invalid_argument("apt_gsizew defaulted.");
+    }
+}
+
+// Size in words.
+static inline index_t apt_gsizew(apt_size s, apt_cap c)
+{
+    return apt_gsizew(s, c) / word_traits::bytes;
+}
+
+// Byte patterns. Binary form: "00000000", "01010101", "10101010", "11111111"
+enum apt_bstr
+{
+    BZEROED,
+    BCHESS0,
+    BCHESS1,
+    BFILLED,
+    BCOUNT
+};
+
+// Get actual string for the given single byte pattern.
+static inline std::string apt_gbstr(apt_bstr b)
+{
+    static const std::string bstrs[apt_bstr::BCOUNT] = {"00", "55", "AA", "FF"};
+    return bstrs[b];
+}
+
+// String patterns.
+enum apt_pat
+{
+    PFILLED, // "1111...1111"
+    PCHESS0, // "0101...0101"
+    PCHESS1, // "1010...1010"
+    PZEROED, // "0000...0000"
+    PONLYLB, // "0000...0001"
+    PONLYHB, // "1000...0000"
+    PMISSLB, // "1111...1110"
+    PMISSHB, // "0111...1111"
+    PCOUNT
+};
+
+// Get actual pattern with a given byte size.
+static inline std::string apt_gpstr(apt_pat p, index_t s)
+{
+    std::string pstr = "0x";
+    std::string bstr0;
+    std::string bstr1;
+    switch (p)
+    {
+    case PFILLED:
+    case PMISSHB:
+    case PMISSLB:
+        bstr0 = apt_gbstr(apt_bstr::BFILLED);
+        bstr1 = apt_gbstr(apt_bstr::BFILLED);
+        break;
+    case PCHESS0:
+        bstr0 = apt_gbstr(apt_bstr::BCHESS0);
+        bstr1 = apt_gbstr(apt_bstr::BCHESS0);
+        break;
+    case PCHESS1:
+        bstr0 = apt_gbstr(apt_bstr::BCHESS1);
+        bstr1 = apt_gbstr(apt_bstr::BCHESS1);
+        break;
+    case PZEROED:
+    case PONLYLB:
+    case PONLYHB:
+        bstr0 = apt_gbstr(apt_bstr::BZEROED);
+        bstr1 = apt_gbstr(apt_bstr::BZEROED);
+        break;
+    default:
+        break;
+    }
+    pstr += bstr0;
+    for (index_t i = 1; i < s; ++i)
+    {
+        pstr += bstr1;
+    }
+    if (p == apt_pat::PONLYHB)
+    {
+        pstr[2] = '8';
+    }
+    else if (p == apt_pat::PONLYLB)
+    {
+        pstr[pstr.size() - 1] = '1';
+    }
+    else if (p == apt_pat::PMISSHB)
+    {
+        pstr[2] = '7';
+    }
+    else if (p == apt_pat::PMISSLB)
+    {
+        pstr[pstr.size() - 1] = 'E';
+    }
+    return pstr;
+}
+
+// Get two's complement string pattern for given size, capacity and sign.
+
+using boost_uint = boost::multiprecision::uint1024_t;
+using boost_int = boost::multiprecision::int1024_t;
+
+// Normal view, without leading zeros.
+static inline std::string apt_norm(std::string str, apt_cap c, apt_size s)
+{
+    boost_uint val;
+    index_t bsize = apt_gsize(s, c);
+    if (bsize * 2 < (str.size() - 2))
+    {
+        str = std::string("0x") + str.substr(str.size() - bsize * 2, bsize * 2);
+    }
+    val.assign(str);
+    return std::string("0x") + val.str(0, std::ios_base::hex);
+}
+
+// Two's complement of the given string.
+static inline std::string apt_twos(std::string str)
+{
+    boost_uint val;
+    val.assign(str);
+    val = ~val + 1;
+    str = std::string("0x") + val.str(0, std::ios_base::hex);
+    return str;
+}
+
+// Transform two's complement pattern to sign and magnitude; sgn means that '-' should be applied to non-negative value represented by str.
+static inline std::string apt_stru(std::string str, apt_cap c, apt_size s, bool sgn = false)
+{
+    if (sgn)
+    {
+        str = apt_twos(str);
+    }
+    return apt_norm(str, c, s);
+}
+
+// Cast string to signed with sign and slice it.
+static inline std::string apt_strs(std::string str, apt_cap c, apt_size s)
+{
+    str = apt_norm(str, c, s);
+    if ((str.size() - 2) == (apt_gcap(c) * 2))
+    {
+        if (str[2] == '8' || str[2] == '9' || str[2] == 'A' || str[2] == 'B' || str[2] == 'C' || str[2] == 'D' || str[2] == 'E' || str[2] == 'F')
+        {
+            for (index_t i = 3; i < str.size(); ++i)
+            {
+                str = apt_twos(str);
+                str = apt_norm(str, c, s);
+                str = "-" + str;
+            }
+        }
+    }
+    return str;
+}
+
+// Generate bit pattern p for the given capacity, size and sign.
+static inline std::string apt_strp(apt_pat p, apt_cap c, apt_size s, bool sgn)
+{
+    index_t bsize = apt_gsize(s, c);
+    return apt_stru(apt_gpstr(p, apt_gsize(s, c)), c, s, sgn);
+}
+
+// Test case suffix:
+// [left mnemonic] [left size] _ [right mnemonic] [right size] _ [capacity mnemonic] [left sign] [right sign]
+
+// x mnemonic:
+// fd - PFILLED
+// c0 - PCHESS0
+// c1 - PCHESS1
+// zd - PZEROED
+// mh - PMISSHB
+// ml - PMISSLB
+// oh - PONLYHB
+// ol - PONLYHB
+
+// capacity mnemonic:
+// mx - max
+// md - mid
+// mn - min
+
+// size:
+// z - zero
+// o - one
+// h - half
+// f - full
+
+// sign
+// u - unsigned
+// s - signed
+
+// Test case, both parameters can be configured.
+// suffix
+// operation
+// signedness of the operation
+// out capacity
+// left sign
+// left pattern
+// left size
+// right sign
+// right pattern
+// right size
+#define TEST_BIN_OP(sfx, op, sgnd, oc, lsgn, lp, ls, rsgn, rp, rs)                          \
+    TEST(xapi_##op, sfx)                                                                    \
+    {                                                                                       \
+        std::string lstr = apt_strp(lp, apt_cap::CMAX, ls, lsgn);                           \
+        std::string rstr = apt_strp(rp, apt_cap::CMAX, rs, rsgn);                           \
+        std::string estr = apt_str##sgnd(bapi_##op##_##sgnd(lstr, rstr), oc, apt_size::SF); \
+        std::string ostr = xapi_##op##_##sgnd(lstr, rstr, oc);                              \
+        ASSERT_EQ(ostr, estr);                                                              \
     }
 
-// Macro call structure:
-// prefix, op, opf,
-//         ls      l4          l3          l2          l1
-//         rs      r4          r3          r2          r1
-//         es      e4          e3          e2          e1
-// op - operation symbol (&, |, ^).
-// opf - operation function name (and, or, xor).
-// l/r/e - left/right/expected
-// s - size
-// x4 - the most significant word
-// x1 - the least significant word
+// Suite step, left parameter parametrized, right is fixed).
+// suffix
+// operation
+// signedness of the operation
+// out capacity
+// left sign
+// left pattern
+// left size
+// right sign
+#define TEST_BIN_OP_SUITE_STEP(sfx, op, sgnd, oc, lsgn, lp, ls, rsgn)                         \
+    TEST_BIN_OP(sfx##_fdf, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PFILLED, apt_size::SF); \
+    TEST_BIN_OP(sfx##_fdh, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PFILLED, apt_size::SH); \
+    TEST_BIN_OP(sfx##_fdo, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PFILLED, apt_size::SO); \
+    TEST_BIN_OP(sfx##_c0f, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PCHESS0, apt_size::SF); \
+    TEST_BIN_OP(sfx##_c0h, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PCHESS0, apt_size::SH); \
+    TEST_BIN_OP(sfx##_c0o, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PCHESS0, apt_size::SO); \
+    TEST_BIN_OP(sfx##_c1f, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PCHESS1, apt_size::SF); \
+    TEST_BIN_OP(sfx##_c1h, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PCHESS1, apt_size::SH); \
+    TEST_BIN_OP(sfx##_c1o, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PCHESS1, apt_size::SO); \
+    TEST_BIN_OP(sfx##_mhf, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PMISSHB, apt_size::SF); \
+    TEST_BIN_OP(sfx##_mlf, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PMISSLB, apt_size::SF); \
+    TEST_BIN_OP(sfx##_ohf, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PONLYHB, apt_size::SF); \
+    TEST_BIN_OP(sfx##_olo, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PONLYLB, apt_size::SO); \
+    TEST_BIN_OP(sfx##_zdz, op, sgnd, oc, lsgn, lp, ls, rsgn, apt_pat::PZEROED, apt_size::SZ)
 
-#define AP_TEST_BIT_SUITE(op, opf)                                               \
-                                                                                 \
-    AP_TEST_BIT(zztt, op, opf,                                                   \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT,               \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT);              \
-                                                                                 \
-    AP_TEST_BIT(oztt, op, opf,                                                   \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS0,               \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT);              \
-                                                                                 \
-    AP_TEST_BIT(ozut, op, opf,                                                   \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED,               \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT);              \
-                                                                                 \
-    AP_TEST_BIT(oott, op, opf,                                                   \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WFILLED);              \
-                                                                                 \
-    AP_TEST_BIT(oout, op, opf,                                                   \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(ootu, op, opf,                                                   \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);              \
-                                                                                 \
-    AP_TEST_BIT(oouu, op, opf,                                                   \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);              \
-                                                                                 \
-    AP_TEST_BIT(hztt, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WFILLED, AP_WCHESS0,               \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT);              \
-                                                                                 \
-    AP_TEST_BIT(hzut, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WCHESS0,               \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT);              \
-                                                                                 \
-    AP_TEST_BIT(hott, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WFILLED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(hout, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(hotu, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WFILLED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);              \
-                                                                                 \
-    AP_TEST_BIT(houu, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);              \
-                                                                                 \
-    AP_TEST_BIT(hhtt, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WFILLED, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1, AP_WFILLED);              \
-                                                                                 \
-    AP_TEST_BIT(hhut, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1, AP_WFILLED);              \
-                                                                                 \
-    AP_TEST_BIT(hhtu, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WCHESS0, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WFILLED);              \
-                                                                                 \
-    AP_TEST_BIT(hhuu, op, opf,                                                   \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WFILLED);              \
-                                                                                 \
-    AP_TEST_BIT(fztt, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT);              \
-                                                                                 \
-    AP_TEST_BIT(fzut, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                0, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT);              \
-                                                                                 \
-    AP_TEST_BIT(fott, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(fout, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(fotu, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);              \
-                                                                                 \
-    AP_TEST_BIT(fouu, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                1, AP_WHEPROT, AP_WHEPROT, AP_WHEPROT, AP_WZEROED);              \
-                                                                                 \
-    AP_TEST_BIT(fhtt, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(fhut, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WCHESS1, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(fhtu, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(fhuu, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                2, AP_WHEPROT, AP_WHEPROT, AP_WZEROED, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(fftt, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                4, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(ffut, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                4, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(fftu, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                4, AP_WZEROED, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);              \
-                                                                                 \
-    AP_TEST_BIT(ffuu, op, opf,                                                   \
-                4, AP_WFILLED, AP_WCHESS0, AP_WFILLED, AP_WCHESS0,               \
-                4, AP_WZEROED, AP_WZEROED, AP_WCHESS1, AP_WCHESS1);
+// Suite, only capacity and signs of left and right operands can be set.
+// suffix
+// operation
+// signedness of the operation
+// out capacity
+// left sign
+// right sign
+#define TEST_BIN_OP_SUITE(sfx, op, sgnd, oc, lsgn, rsgn)                                                  \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_fdf, op, sgnd, oc, lsgn, apt_pat::PFILLED, apt_size::SF, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_fdh, op, sgnd, oc, lsgn, apt_pat::PFILLED, apt_size::SH, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_fdo, op, sgnd, oc, lsgn, apt_pat::PFILLED, apt_size::SO, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_c0f, op, sgnd, oc, lsgn, apt_pat::PCHESS0, apt_size::SF, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_c0h, op, sgnd, oc, lsgn, apt_pat::PCHESS0, apt_size::SH, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_c0o, op, sgnd, oc, lsgn, apt_pat::PCHESS0, apt_size::SO, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_c1f, op, sgnd, oc, lsgn, apt_pat::PCHESS1, apt_size::SF, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_c1h, op, sgnd, oc, lsgn, apt_pat::PCHESS1, apt_size::SH, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_c1o, op, sgnd, oc, lsgn, apt_pat::PCHESS1, apt_size::SO, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_mhf, op, sgnd, oc, lsgn, apt_pat::PMISSHB, apt_size::SF, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_mlf, op, sgnd, oc, lsgn, apt_pat::PMISSLB, apt_size::SF, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_ohf, op, sgnd, oc, lsgn, apt_pat::PONLYHB, apt_size::SF, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_olo, op, sgnd, oc, lsgn, apt_pat::PONLYLB, apt_size::SO, rsgn); \
+    TEST_BIN_OP_SUITE_STEP(sgnd##_##sfx##_zdz, op, sgnd, oc, lsgn, apt_pat::PZEROED, apt_size::SZ, AP_N)
 
+// Test case, both parameters can be configured.
+// suffix
+// operation
+// signedness of the operation
+// out capacity
+// in sign
+// in pattern
+// in size
+#define TEST_UN_OP(sfx, op, sgnd, oc, isgn, ip, is)                                   \
+    TEST(xapi_##op, sfx)                                                              \
+    {                                                                                 \
+        std::string istr = apt_strp(ip, apt_cap::CMAX, is, isgn);                     \
+        std::string estr = apt_str##sgnd(bapi_##op##_##sgnd(istr), oc, apt_size::SF); \
+        std::string ostr = xapi_##op##_##sgnd(istr, oc);                              \
+        ASSERT_EQ(ostr, estr);                                                        \
+    }
 
-// // Unsigned types: small, medium, large.
-// using ap_u32 = integer<32, false>;
-// using ap_u64 = integer<64, false>;
-// using ap_u96 = integer<96, false>;
-// // Signed types: small, medium, large.
-// using ap_s32 = integer<32, true>;
-// using ap_s64 = integer<64, true>;
-// using ap_s96 = integer<96, true>;
-
-// #define AP_INTT(p, size) ap_##p##size
-// #define AP_INTV(p1, p2, size) p1##p2##size
-
-// #define AP_CALL_BINARY(p1, p2, size, op)                                                      \
-//     auto AP_INTV(p1, p2, size) = AP_INTT(p1, 64){1} op AP_INTT(p2, size){1};                  \
-//     auto AP_INTV(p1, p2##1, size) = AP_INTT(p1, 64){1} op static_cast<bool>(1);               \
-//     auto AP_INTV(p1, p2##2, size) = AP_INTT(p1, 64){1} op static_cast<char>(1);               \
-//     auto AP_INTV(p1, p2##3, size) = AP_INTT(p1, 64){1} op static_cast<unsigned char>(1);      \
-//     auto AP_INTV(p1, p2##4, size) = AP_INTT(p1, 64){1} op static_cast<unsigned short>(1);     \
-//     auto AP_INTV(p1, p2##5, size) = AP_INTT(p1, 64){1} op static_cast<unsigned>(1);           \
-//     auto AP_INTV(p1, p2##6, size) = AP_INTT(p1, 64){1} op static_cast<unsigned long>(1);      \
-//     auto AP_INTV(p1, p2##7, size) = AP_INTT(p1, 64){1} op static_cast<unsigned long long>(1); \
-//     auto AP_INTV(p1, p2##8, size) = AP_INTT(p1, 64){1} op static_cast<signed char>(1);        \
-//     auto AP_INTV(p1, p2##9, size) = AP_INTT(p1, 64){1} op static_cast<signed short>(1);       \
-//     auto AP_INTV(p1, p2##10, size) = AP_INTT(p1, 64){1} op static_cast<signed>(1);            \
-//     auto AP_INTV(p1, p2##11, size) = AP_INTT(p1, 64){1} op static_cast<signed long>(1);       \
-//     auto AP_INTV(p1, p2##12, size) = AP_INTT(p1, 64){1} op static_cast<signed long long>(1)
-
-// #define AP_CALL_SELF(p1, p2, size, op)     \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2, size){1};              \
-//     AP_INTV(p1, p2, size)                  \
-//     op AP_INTT(p2, size){1};               \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##1, size){1};           \
-//     AP_INTV(p1, p2##1, size)               \
-//     op static_cast<bool>(1);               \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##2, size){1};           \
-//     AP_INTV(p1, p2##2, size)               \
-//     op static_cast<char>(1);               \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##3, size){1};           \
-//     AP_INTV(p1, p2##3, size)               \
-//     op static_cast<unsigned char>(1);      \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##4, size){1};           \
-//     AP_INTV(p1, p2##4, size)               \
-//     op static_cast<unsigned short>(1);     \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##5, size){1};           \
-//     AP_INTV(p1, p2##5, size)               \
-//     op static_cast<unsigned>(1);           \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##6, size){1};           \
-//     AP_INTV(p1, p2##6, size)               \
-//     op static_cast<unsigned long>(1);      \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##7, size){1};           \
-//     AP_INTV(p1, p2##7, size)               \
-//     op static_cast<unsigned long long>(1); \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##8, size){1};           \
-//     AP_INTV(p1, p2##8, size)               \
-//     op static_cast<signed char>(1);        \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##9, size){1};           \
-//     AP_INTV(p1, p2##9, size)               \
-//     op static_cast<signed short>(1);       \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##10, size){1};          \
-//     AP_INTV(p1, p2##10, size)              \
-//     op static_cast<signed>(1);             \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##11, size){1};          \
-//     AP_INTV(p1, p2##11, size)              \
-//     op static_cast<signed long>(1);        \
-//     AP_INTT(p1, 64)                        \
-//     AP_INTV(p1, p2##12, size){1};          \
-//     AP_INTV(p1, p2##12, size)              \
-//     op static_cast<signed long long>(1)
-
-// #define AP_CALL_PRE(p, op)    \
-//     AP_INTT(p, 64)            \
-//     AP_INTV(p, pre, size){1}; \
-//     op AP_INTV(p, pre, size)
-
-// #define AP_CALL_POST(p, op)    \
-//     AP_INTT(p, 64)             \
-//     AP_INTV(p, post, size){1}; \
-//     AP_INTV(p, post, size)     \
-//     op
+// Suite, only capacity and signs of left and right operands can be set.
+// suffix
+// operation
+// signedness of the operation
+// out capacity
+// left sign
+// right sign
+#define TEST_UN_OP_SUITE(sfx, op, sgnd, oc, isgn)                                       \
+    TEST_UN_OP(sgnd##_##sfx##_fdf, op, sgnd, oc, isgn, apt_pat::PFILLED, apt_size::SF); \
+    TEST_UN_OP(sgnd##_##sfx##_fdh, op, sgnd, oc, isgn, apt_pat::PFILLED, apt_size::SH); \
+    TEST_UN_OP(sgnd##_##sfx##_fdo, op, sgnd, oc, isgn, apt_pat::PFILLED, apt_size::SO); \
+    TEST_UN_OP(sgnd##_##sfx##_c0f, op, sgnd, oc, isgn, apt_pat::PCHESS0, apt_size::SF); \
+    TEST_UN_OP(sgnd##_##sfx##_c0h, op, sgnd, oc, isgn, apt_pat::PCHESS0, apt_size::SH); \
+    TEST_UN_OP(sgnd##_##sfx##_c0o, op, sgnd, oc, isgn, apt_pat::PCHESS0, apt_size::SO); \
+    TEST_UN_OP(sgnd##_##sfx##_c1f, op, sgnd, oc, isgn, apt_pat::PCHESS1, apt_size::SF); \
+    TEST_UN_OP(sgnd##_##sfx##_c1h, op, sgnd, oc, isgn, apt_pat::PCHESS1, apt_size::SH); \
+    TEST_UN_OP(sgnd##_##sfx##_c1o, op, sgnd, oc, isgn, apt_pat::PCHESS1, apt_size::SO); \
+    TEST_UN_OP(sgnd##_##sfx##_mhf, op, sgnd, oc, isgn, apt_pat::PMISSHB, apt_size::SF); \
+    TEST_UN_OP(sgnd##_##sfx##_mlf, op, sgnd, oc, isgn, apt_pat::PMISSLB, apt_size::SF); \
+    TEST_UN_OP(sgnd##_##sfx##_ohf, op, sgnd, oc, isgn, apt_pat::PONLYHB, apt_size::SF); \
+    TEST_UN_OP(sgnd##_##sfx##_olo, op, sgnd, oc, isgn, apt_pat::PONLYLB, apt_size::SO); \
+    TEST_UN_OP(sgnd##_##sfx##_zdz, op, sgnd, oc, isgn, apt_pat::PZEROED, apt_size::SZ)
 
 #endif

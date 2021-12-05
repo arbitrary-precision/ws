@@ -14,10 +14,7 @@ using int_handle8 = int_handle<dword_traits::bits * 4, word_traits::bits * 4>;
         _name##_reg.words[i] = word_t(i);             \
     }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(int_handle, tb_int_handle)
+TEST(int_handle, build)
 {
     ASSERT_EQ(int_handle2::maxbits, word_traits::bits * int_handle2::maxwords);
     ASSERT_EQ(int_handle2::minbits, word_traits::bits * int_handle2::minwords);
@@ -36,10 +33,7 @@ TEST(int_handle, tb_int_handle)
     int_handle8 h8;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
-
-TEST(int_handle, tu_int_handle_ctor_default)
+TEST(int_handle, ctor_d)
 {
     int_handle4 h;
     wregister hr = h.get_wregister();
@@ -48,7 +42,7 @@ TEST(int_handle, tu_int_handle_ctor_default)
     ASSERT_EQ(hr.sign, 0);
 }
 
-TEST(int_handle, tb_int_handle_sign)
+TEST(int_handle, sign)
 {
     int_handle4 h4;
 
@@ -59,7 +53,7 @@ TEST(int_handle, tb_int_handle_sign)
     ASSERT_FALSE(h4.get_sign());
 }
 
-TEST(int_handle, tb_int_handle_size)
+TEST(int_handle, size)
 {
     int_handle4 h4;
 
@@ -70,7 +64,7 @@ TEST(int_handle, tb_int_handle_size)
     ASSERT_EQ(h4.get_size(), h4.get_capacity());
 }
 
-TEST(int_handle, tb_int_handle_capacity)
+TEST(int_handle, capacity)
 {
     int_handle4 h4;
 
@@ -94,28 +88,28 @@ TEST(int_handle, tb_int_handle_capacity)
     ASSERT_EQ(h4.get_capacity(), h4.maxwords);
 }
 
-TEST(int_handle, tu_int_handle_ctor_capacity_less)
+TEST(int_handle, ctor_capacity_less)
 {
     HANDLE(int_handle4, h, 1, 2, true);
     AP_REGISTER(exp, 2, 2, true, 0, 1);
     AP_ASSERT_REG(h_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_capacity_normal)
+TEST(int_handle, ctor_capacity_normal)
 {
     HANDLE(int_handle4, h, 4, 3, false);
     AP_REGISTER(exp, 4, 3, false, 0, 1, 2);
     AP_ASSERT_REG(h_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_capacity_greater)
+TEST(int_handle, ctor_capacity_greater)
 {
     HANDLE(int_handle4, h, 5, 3, true);
     AP_REGISTER(exp, 4, 3, true, 0, 1, 2);
     AP_ASSERT_REG(h_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_move_less)
+TEST(int_handle, ctor_move_less)
 {
     HANDLE(int_handle2, h, 2, 2, true);
     int_handle8 h8{std::move(h)};
@@ -124,7 +118,7 @@ TEST(int_handle, tu_int_handle_ctor_move_less)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_move_normal)
+TEST(int_handle, ctor_move_normal)
 {
     HANDLE(int_handle8, h, 6, 5, false);
     int_handle8 h8{std::move(h)};
@@ -133,7 +127,7 @@ TEST(int_handle, tu_int_handle_ctor_move_normal)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_move_greater)
+TEST(int_handle, ctor_move_greater)
 {
     HANDLE(int_handle8, h, 8, 8, true);
     int_handle4 h4{std::move(h)};
@@ -142,7 +136,7 @@ TEST(int_handle, tu_int_handle_ctor_move_greater)
     AP_ASSERT_REG(h4_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_copy_less)
+TEST(int_handle, ctor_copy_less)
 {
     HANDLE(int_handle2, h, 2, 2, true);
     int_handle8 h8{h};
@@ -151,7 +145,7 @@ TEST(int_handle, tu_int_handle_ctor_copy_less)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_copy_normal)
+TEST(int_handle, ctor_copy_normal)
 {
     HANDLE(int_handle8, h, 6, 5, false);
     int_handle8 h8{h};
@@ -160,7 +154,7 @@ TEST(int_handle, tu_int_handle_ctor_copy_normal)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_ctor_copy_greater)
+TEST(int_handle, ctor_copy_greater)
 {
     HANDLE(int_handle8, h, 8, 8, true);
     int_handle4 h4{h};
@@ -169,7 +163,7 @@ TEST(int_handle, tu_int_handle_ctor_copy_greater)
     AP_ASSERT_REG(h4_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_assign_move_less)
+TEST(int_handle, assign_move_less)
 {
     HANDLE(int_handle2, h, 2, 2, true);
     int_handle8 h8;
@@ -179,7 +173,7 @@ TEST(int_handle, tu_int_handle_assign_move_less)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_assign_move_normal)
+TEST(int_handle, assign_move_normal)
 {
     HANDLE(int_handle8, h, 6, 5, false);
     int_handle8 h8;
@@ -189,7 +183,7 @@ TEST(int_handle, tu_int_handle_assign_move_normal)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_assign_move_greater)
+TEST(int_handle, assign_move_greater)
 {
     HANDLE(int_handle8, h, 8, 8, true);
     int_handle4 h4;
@@ -199,7 +193,7 @@ TEST(int_handle, tu_int_handle_assign_move_greater)
     AP_ASSERT_REG(h4_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_assign_copy_less)
+TEST(int_handle, assign_copy_less)
 {
     HANDLE(int_handle2, h, 2, 2, true);
     int_handle8 h8;
@@ -209,7 +203,7 @@ TEST(int_handle, tu_int_handle_assign_copy_less)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_assign_copy_normal)
+TEST(int_handle, assign_copy_normal)
 {
     HANDLE(int_handle8, h, 6, 5, false);
     int_handle8 h8;
@@ -219,7 +213,7 @@ TEST(int_handle, tu_int_handle_assign_copy_normal)
     AP_ASSERT_REG(h8_reg, exp);
 }
 
-TEST(int_handle, tu_int_handle_assign_copy_greater)
+TEST(int_handle, assign_copy_greater)
 {
     HANDLE(int_handle8, h, 8, 8, true);
     int_handle4 h4;

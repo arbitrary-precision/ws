@@ -1,21 +1,16 @@
 #include "../common.hpp"
 
-using namespace ap::library;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(asm, tb_twos)
+TEST(asm_twos, build)
 {
     AP_REGISTER(i, 4, 0, false);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
     asm_twos(rregister(i), o);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
+// Name: [in size] [in trimmed]
 
-TEST(asm, tu_twos_zt)
+TEST(asm_twos, zt)
 {
     AP_REGISTER(i, 4, 0, false);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -24,7 +19,7 @@ TEST(asm, tu_twos_zt)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_twos_ot)
+TEST(asm_twos, ot)
 {
     AP_REGISTER(i, 4, 1, false, AP_WONLYLB);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -33,7 +28,7 @@ TEST(asm, tu_twos_ot)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_twos_ht)
+TEST(asm_twos, ht)
 {
     AP_REGISTER(i, 4, 2, false, AP_WONLYLB, AP_WONLYLB);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -42,7 +37,7 @@ TEST(asm, tu_twos_ht)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_twos_ft)
+TEST(asm_twos, ft)
 {
     AP_REGISTER(i, 4, 4, false, AP_WFILLED, AP_WFILLED, AP_WFILLED, AP_WFILLED);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -51,7 +46,7 @@ TEST(asm, tu_twos_ft)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_twos_ou)
+TEST(asm_twos, ou)
 {
     AP_REGISTER(i, 4, 4, false, AP_WONLYLB, AP_WZEROED, AP_WZEROED, AP_WZEROED);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -60,7 +55,7 @@ TEST(asm, tu_twos_ou)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_twos_hu)
+TEST(asm_twos, hu)
 {
     AP_REGISTER(i, 4, 4, false, AP_WONLYLB, AP_WONLYLB, AP_WZEROED, AP_WZEROED);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);
@@ -69,7 +64,7 @@ TEST(asm, tu_twos_hu)
     AP_ASSERT_REG(o, e);
 }
 
-TEST(asm, tu_twos_fu)
+TEST(asm_twos, fu)
 {
     AP_REGISTER(i, 4, 4, false, AP_WFILLED, AP_WFILLED, AP_WZEROED, AP_WZEROED);
     AP_REGISTER(o, 4, 4, false, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1, AP_WCHESS1);

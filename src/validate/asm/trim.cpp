@@ -1,20 +1,15 @@
 #include "../common.hpp"
 
-using namespace ap::library;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Build.
-
-TEST(asm, tb_trim)
+TEST(asm_trim, build)
 {
     AP_REGISTER(x, 1, 1, false, 0);
     asm_trim(x);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Unit.
+// Name: [in size] [in trimmed]
 
-TEST(asm, tu_trim_zt)
+TEST(asm_trim, zt)
 {
     AP_REGISTER(x, 4, 0, false);
     AP_REGISTER(e, 4, 0, false);
@@ -22,7 +17,7 @@ TEST(asm, tu_trim_zt)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_trim_ot)
+TEST(asm_trim, ot)
 {
     AP_REGISTER(x, 4, 1, false, 1);
     AP_REGISTER(e, 4, 1, false, 1);
@@ -30,7 +25,7 @@ TEST(asm, tu_trim_ot)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_trim_ht)
+TEST(asm_trim, ht)
 {
     AP_REGISTER(x, 4, 2, false, 1, 2);
     AP_REGISTER(e, 4, 2, false, 1, 2);
@@ -38,7 +33,7 @@ TEST(asm, tu_trim_ht)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_trim_ft)
+TEST(asm_trim, ft)
 {
     AP_REGISTER(x, 4, 4, false, 1, 2, 3, 4);
     AP_REGISTER(e, 4, 4, false, 1, 2, 3, 4);
@@ -46,7 +41,7 @@ TEST(asm, tu_trim_ft)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_trim_zu)
+TEST(asm_trim, zu)
 {
     AP_REGISTER(x, 4, 4, false, 0, 0, 0, 0);
     AP_REGISTER(e, 4, 0, false);
@@ -54,7 +49,7 @@ TEST(asm, tu_trim_zu)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_trim_ou)
+TEST(asm_trim, ou)
 {
     AP_REGISTER(x, 4, 4, false, 1, 0, 0, 0);
     AP_REGISTER(e, 4, 1, false, 1);
@@ -62,7 +57,7 @@ TEST(asm, tu_trim_ou)
     AP_ASSERT_REG(x, e);
 }
 
-TEST(asm, tu_trim_hu)
+TEST(asm_trim, hu)
 {
     AP_REGISTER(x, 4, 4, false, 1, 2, 0, 0);
     AP_REGISTER(e, 4, 2, false, 1, 2);

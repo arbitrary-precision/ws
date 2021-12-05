@@ -5,7 +5,7 @@ using namespace ap::library;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Build.
 
-TEST(array, tb_array)
+TEST(array, build)
 {
     array<word_t> arrn = array_null<word_t>();
     array<word_t> arr = array_alloc<word_t>(1);
@@ -15,13 +15,13 @@ TEST(array, tb_array)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Unit.
 
-TEST(array, tu_null)
+TEST(array, null)
 {
     array<word_t> arr = array_null<word_t>();
     ASSERT_TRUE(arr.get() == nullptr);
 }
 
-TEST(array, tu_alloc)
+TEST(array, alloc)
 {
     index_t size = 127;
     array<word_t> arr = array_alloc<word_t>(size);
@@ -32,7 +32,7 @@ TEST(array, tu_alloc)
     }
 }
 
-TEST(array, tu_realloc)
+TEST(array, realloc)
 {
     index_t size = 127;
     array<word_t> arr = array_alloc<word_t>(size);
