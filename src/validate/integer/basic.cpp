@@ -40,6 +40,12 @@ static inline std::string boost_integer_basicx_u(const std::string& istr, index_
     return std::to_string(val);
 }
 
+static inline std::string boost_integer_basicx_s(const std::string& istr, index_t ic, index_t oc)
+{
+    unsigned long long val = std::stoull(ap_tu(istr, sizeof(unsigned long long) * CHAR_BIT), nullptr, 16);
+    return std::to_string(val);
+}
+
 static inline std::string ap_integer_basic_u(const std::string& istr, index_t ic, index_t oc)
 {
     return ap_dispatch_unary_op<false, integer_basic_impl_u>(istr, ic);
@@ -55,9 +61,15 @@ static inline std::string ap_integer_basicx_u(const std::string& istr, index_t i
     return ap_dispatch_unary_op<false, integer_basic_impl_s>(istr, ic);
 }
 
+static inline std::string ap_integer_basicx_s(const std::string& istr, index_t ic, index_t oc)
+{
+    return ap_dispatch_unary_op<true, integer_basic_impl_u>(istr, ic);
+}
+
 TEST_SUITE_UOP(integer_basic, s);
 TEST_SUITE_UOP(integer_basic, u);
 TEST_SUITE_UOP(integer_basicx, u);
+TEST_SUITE_UOP(integer_basicx, s);
 
 #define TEST_ALL_BASIC_CONVERSIONS(sgnd)                                     \
     ap_##sgnd##int_l sgnd##ax{static_cast<char>(0)};                         \

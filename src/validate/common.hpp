@@ -95,18 +95,18 @@ static inline constexpr index_t ap_capw(index_t cap)
 // Size of one word
 #define AP_SZ_O 9
 // Size of one fourth capacity
-#define AP_SZ_Q 4
+#define AP_SZ_Q 1
 // Size of half capacity
 #define AP_SZ_H 2
 // Size of three fourths of the capacity (most)
-#define AP_SZ_M 7
+#define AP_SZ_M 3
 // Size of full capacity
-#define AP_SZ_F 1
+#define AP_SZ_F 4
 
 // Size in bits.
 static inline constexpr index_t ap_sz(index_t cap, index_t sz)
 {
-    return (sz == AP_SZ_O) ? word_traits::bits : ((sz == AP_SZ_M) ? (cap / 4) * 3 : (cap / sz));
+    return (sz == AP_SZ_O) ? word_traits::bits : (cap / 4) * sz;
 }
 
 // Size in bytes.
@@ -460,9 +460,10 @@ static inline unsigned long long to_ull(const std::string& str)
 
 #define TEST_SUITE_BOPERATOR(name, sgnd)                        \
     TEST_BOP_SZ(LLL, name, sgnd, AP_CAP_L, AP_CAP_L, AP_CAP_L); \
-    TEST_BOP_SZ(LLS, name, sgnd, AP_CAP_L, AP_CAP_L, AP_CAP_S); \
     TEST_BOP_SZ(LSL, name, sgnd, AP_CAP_L, AP_CAP_S, AP_CAP_L); \
+    TEST_BOP_SZ(LSS, name, sgnd, AP_CAP_L, AP_CAP_S, AP_CAP_S); \
     TEST_BOP_SZ(SLL, name, sgnd, AP_CAP_S, AP_CAP_L, AP_CAP_L); \
+    TEST_BOP_SZ(SLS, name, sgnd, AP_CAP_S, AP_CAP_L, AP_CAP_S); \
     TEST_BOP_SZ(SSS, name, sgnd, AP_CAP_S, AP_CAP_S, AP_CAP_S);
 
 using ap_uint_l = integer<AP_CAP_L, false>;
