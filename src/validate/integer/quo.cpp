@@ -56,7 +56,7 @@ static inline std::string boost_integer_quo_u(const std::string& lstr, const std
     {
         return "0x0";
     }
-    return boost_uint_tou(left / right, MAX(lc, rc));
+    return boost_uint_tou(left / right, AP_MAX(lc, rc));
 }
 
 static inline std::string boost_integer_quo_s(const std::string& lstr, const std::string& rstr, index_t lc, index_t rc, index_t oc)
@@ -68,7 +68,7 @@ static inline std::string boost_integer_quo_s(const std::string& lstr, const std
         return "0x0";
     }
     boost_uint out{left / right};
-    return boost_uint_tos(out, MAX(lc, rc));
+    return boost_uint_tos(out, AP_MAX(lc, rc));
 }
 
 static inline std::string boost_integer_quox_u(const std::string& lstr, const std::string& rstr, index_t lc, index_t rc, index_t oc)

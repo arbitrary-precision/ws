@@ -44,14 +44,14 @@ static inline std::string boost_integer_or_u(const std::string& lstr, const std:
 {
     boost_uint left{ap_tu(lstr, lc)};
     boost_uint right{ap_tu(rstr, rc)};
-    return boost_uint_tou(left ^ right, MAX(lc, rc));
+    return boost_uint_tou(left ^ right, AP_MAX(lc, rc));
 }
 
 static inline std::string boost_integer_or_s(const std::string& lstr, const std::string& rstr, index_t lc, index_t rc, index_t oc)
 {
     boost_uint left{ap_ts(lstr, lc)};
     boost_uint right{ap_ts(rstr, rc)};
-    return boost_uint_tos(left ^ right, MAX(lc, rc));
+    return boost_uint_tos(left ^ right, AP_MAX(lc, rc));
 }
 
 static inline std::string boost_integer_orx_u(const std::string& lstr, const std::string& rstr, index_t lc, index_t rc, index_t oc)

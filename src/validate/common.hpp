@@ -53,7 +53,7 @@ using namespace ap::library;
     ASSERT_EQ(reg1.size, reg2.size);                               \
     for (index_t index = 0; index < reg1.size; ++index)            \
     {                                                              \
-        ASSERT_EQ(LLU(reg1.words[index]), LLU(reg2.words[index])); \
+        ASSERT_EQ(reg1.words[index], reg2.words[index]); \
     }                                                              \
     (void)0
 
@@ -63,7 +63,7 @@ using namespace ap::library;
     for (index_t index = reg.size; index > 0;)                                                              \
     {                                                                                                       \
         --index;                                                                                            \
-        std::cout << std::hex << LLU(reg.words[index]) << " ";                                              \
+        std::cout << std::hex << static_cast<unsigned long long>(reg.words[index]) << " ";                                              \
     }                                                                                                       \
     std::cout << "]" << std::dec << std::endl
 
