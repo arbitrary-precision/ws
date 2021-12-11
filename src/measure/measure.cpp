@@ -2,7 +2,7 @@
 #include <ap/ap.hpp>
 #include <chronometer/chronometer.hpp>
 
-#define TESTCOUNT 100000
+#define TESTCOUNT 10000
 
 template <std::size_t Size>
 using boost_uint = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<Size, Size, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void>>;
@@ -23,8 +23,8 @@ std::string operand(std::size_t maxhex)
 #define MEASURE_OPERATOR(name, op, size)                                        \
     std::pair<unsigned long long, unsigned long long> measure_##name##_##size() \
     {                                                                           \
-        std::string left{operand(size / 2)};                                    \
-        std::string right{operand(size / 4)};                                   \
+        std::string left{operand(size / 4)};                                    \
+        std::string right{operand(size / 8)};                                   \
         boost_uint<size> bleft{left};                                           \
         boost_uint<size> bright{right};                                         \
         ap_uint<size> aleft{left};                                              \
@@ -66,7 +66,7 @@ std::string operand(std::size_t maxhex)
         /*Warm up*/                                                                 \
         tmpres_##name##_##size = measure_##name##_##size();                         \
     }                                                                               \
-    for (int i = 0; i < 10000; ++i)                                                 \
+    for (int i = 0; i < TESTCOUNT; ++i)                                             \
     {                                                                               \
         tmpres_##name##_##size = measure_##name##_##size();                         \
         result_##name##_##size.first += tmpres_##name##_##size.first;               \
