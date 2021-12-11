@@ -171,6 +171,22 @@ include_directories(${BOOST_SRC_DIR})
 message(STATUS "foo include dir: ${BOOST_SRC_DIR}")
 
 #
+# Subproject - measure.
+#
+
+set(MEASURE_SRC_DIR ${ROOT_SRC_DIR}/measure)
+set(
+  MEASURE_SRC_FILES
+  ${AP_SRC_FILES}
+  ${MEASURE_SRC_DIR}/measure.cpp
+)
+add_executable(measure ${MEASURE_SRC_FILES})
+target_compile_options(measure PUBLIC
+  -DAP_WORD=unsigned\ long\ long
+  -DAP_DWORD=unsigned\ __int128
+  )
+
+#
 # Subproject - validate.
 #
 
