@@ -1,0 +1,4 @@
+[submodule "src/ap"]
+	path = src/ap
+	url = https://github.com/arbitrary-precision/ap.git
+	branch = main
