@@ -15,6 +15,8 @@ HELPS := \
 # Other environment variables should be placed below.
 #
 
+DOCKER_IMAGE := "arbitrary-precision-ws-$$USER"
+
 #
 # Add definitions for callable targets below.
 #
@@ -31,3 +33,7 @@ help:
 #
 # Add definitions for non-callable targets below.
 #
+
+.PHONY: docker-image
+docker-image:
+	@docker build . -t $(DOCKER_IMAGE)
