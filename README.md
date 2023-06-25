@@ -2,8 +2,7 @@
 
 This workspace is used for all activities:
 - Development.
-- Manual testing.
-- Automated testing.
+- Testing.
 - Coverage measurement.
 - Performance measurement.
 
@@ -51,3 +50,8 @@ git remote set-url origin git@github.com:arbitrary-precision/ap.git
 git fetch origin -a
 git checkout -B main
 ```
+
+## Testing
+
+Test sources are part of the repository and located under src/test.
+CMakeLists.txt has a dedicated target "test" to build all tests.
