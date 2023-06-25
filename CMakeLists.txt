@@ -22,3 +22,14 @@ project(ap)
 # Set other variables.
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+# gtest
+include(FetchContent)
+FetchContent_Declare(
+    gtest
+    URL ${CMAKE_SOURCE_DIR}/src/gtest
+)
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(gtest)
