@@ -9,5 +9,11 @@
 
 # Root files.
 !.gitignore
+!.gitmodules
 !README.md
 !LICENSE
+
+# Sources.
+!src
+!src/*
+!src/**
