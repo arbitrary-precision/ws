@@ -9,6 +9,8 @@ This workspace is used for all activities:
 
 All the development is supposed to be done on a Linux-based OS.
 Docker is used for building and testing the changes.
+CMakeLists.txt builds binaries for the respective "test-*" targets in Makefile.
+Makefile provides convenient interface for docker + cmake calls.
 
 ## Prerequisites
 
