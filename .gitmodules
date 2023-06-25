@@ -8,3 +8,6 @@
 [submodule "src/gmp"]
 	path = src/gmp
 	url = https://github.com/arbitrary-precision/gmp.git
+[submodule "src/gtest"]
+	path = src/gtest
+	url = https://github.com/google/googletest.git
