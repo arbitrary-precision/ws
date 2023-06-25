@@ -33,3 +33,14 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
+
+# test
+set(TEST_SRC_DIR "${CMAKE_SOURCE_DIR}/src/test")
+
+add_executable(test
+    "${TEST_SRC_DIR}/test.cpp"
+)
+
+target_link_libraries(test
+    GTest::gtest_main
+)
