@@ -8,16 +8,6 @@
 #
 
 # Root files.
-!.vscode
-!.vscode/*
 !.gitignore
 !README.md
-!CMakeLists.txt
-
-# Subprojects' sources.
-!src
-!src/*/
-!*.hpp
-!*.cpp
-!src/boost/**
-!src/validate/**
+!LICENSE
