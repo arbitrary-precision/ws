@@ -10,6 +10,7 @@
 # Root files.
 !.gitignore
 !.gitmodules
+!CMakeLists.txt
 !Dockerfile
 !README.md
 !LICENSE
