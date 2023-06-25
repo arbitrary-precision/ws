@@ -7,15 +7,26 @@ SHELL := /bin/bash
 
 TARGETS := \
 	help \
+	docker \
 
 HELPS := \
 	"Show this help and exit" \
+	"Run the Docker container interactively" \
 
 #
 # Other environment variables should be placed below.
 #
 
 DOCKER_IMAGE := "arbitrary-precision-ws-$$USER"
+DOCKER_PARAMS := \
+	--rm \
+	-v /etc/passwd:/etc/passwd:ro \
+	-v /etc/group:/etc/group:ro \
+	-v $$PWD:/ws:rw \
+	-w /ws \
+	-u $$UID:$$GID \
+	-h ap \
+	$(DOCKER_IMAGE)
 
 #
 # Add definitions for callable targets below.
@@ -29,6 +40,10 @@ help:
 	&& for (( i=0; i<$${#TARGETS[@]}; i++ )); do \
 		printf " * %-20s - %s\n" "$${TARGETS[$$i]}" "$${HELPS[$$i]}"; \
 	done
+
+.PHONY: docker
+docker: docker-image
+	@docker run -it $(DOCKER_PARAMS)
 
 #
 # Add definitions for non-callable targets below.
