@@ -71,12 +71,6 @@ TARGETS_TEST := $(filter test%,$(TARGETS))
 $(TARGETS_TEST): docker-image
 	@docker run $(DOCKER_PARAMS) bash -c "true \
 	&& cmake -B $(CMAKE_BIN_DIR) \
-		-D CMAKE_C_FLAGS='-O3' \
-		-D CMAKE_C_COMPILER=clang \
-		-D CMAKE_C_STANDARD=17 \
-		-D CMAKE_CXX_FLAGS='-O3' \
-		-D CMAKE_CXX_COMPILER=clang++ \
-		-D CMAKE_CXX_STANDARD=14 \
 		$(CMAKE_SRC_DIR) \
 	&& cmake --build $(CMAKE_BIN_DIR) --target test \
 	&& mkdir -p $(CMAKE_LOG_DIR) \
