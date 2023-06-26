@@ -1,27 +1,15 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Check required variables before defining the project.
-list(APPEND REQUIRED_VARIABLES
-    "CMAKE_C_FLAGS"
-    "CMAKE_C_COMPILER"
-    "CMAKE_C_STANDARD"
-    "CMAKE_CXX_FLAGS"
-    "CMAKE_CXX_COMPILER"
-    "CMAKE_CXX_STANDARD"
-)
-
-foreach(VARIABLE ${REQUIRED_VARIABLES})
-    if("${${VARIABLE}}" STREQUAL "")
-        message(SEND_ERROR "Variable is not set: ${VARIABLE}")
-    endif()
-endforeach()
+# Set defaults.
+set(CMAKE_C_STANDARD 17 CACHE STRING "C standard")
+set(CMAKE_C_COMPILER clang CACHE STRING "C compiler")
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
+set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ compiler")
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # Define project.
-project(ap)
-
-# Set other variables.
-set(CMAKE_C_STANDARD_REQUIRED TRUE)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+project(ap C CXX)
 
 # gtest
 include(FetchContent)
