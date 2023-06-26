@@ -11,18 +11,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 # Define project.
 project(ap C CXX)
 
-# gtest
+# gtest.
 include(FetchContent)
 FetchContent_Declare(
     gtest
-    URL ${CMAKE_SOURCE_DIR}/src/gtest
+    URL "${CMAKE_SOURCE_DIR}/src/gtest"
 )
 
-# For Windows: Prevent overriding the parent project's compiler/linker settings
+# For Windows: Prevent overriding the parent project's compiler/linker settings.
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
-# test
+# test.
 set(TEST_SRC_DIR "${CMAKE_SOURCE_DIR}/src/test")
 
 add_executable(test
