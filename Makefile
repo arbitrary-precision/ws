@@ -62,7 +62,8 @@ docker: docker-image
 # Due to complexity, each "&&" introduces a single command:
 # 1. Generate build files via CMake.
 # 2. Build "test" via CMake.
-# 3. Launch "test", but run only the subset prefixed by the target name.
+# 3. Create directory for logs.
+# 4. Launch "test", but run only the subset prefixed by the target name.
 #    It is expected that every single test starts with "test".
 #    This way "make test" will run all the tests.
 TARGETS_TEST := $(filter test%,$(TARGETS))
@@ -78,11 +79,13 @@ $(TARGETS_TEST): docker-image
 		-D CMAKE_CXX_STANDARD=14 \
 		$(CMAKE_SRC_DIR) \
 	&& cmake --build $(CMAKE_BIN_DIR) --target test \
+	&& mkdir -p $(CMAKE_LOG_DIR) \
 	&& $(CMAKE_BIN_DIR)/test \
 		--gtest_output="xml:$(CMAKE_LOG_DIR)/$@.xml" \
 		--gtest_filter="$@*" \
 		> $(CMAKE_LOG_DIR)/$@.log 2>&1 \
 	"
+	@echo "Logs for $@ were written under $$(realpath $$PWD/$(subst $(CMAKE_SRC_DIR),,$(CMAKE_LOG_DIR)))"
 
 #
 # Add definitions for non-callable targets below.
