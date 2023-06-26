@@ -7,11 +7,13 @@ SHELL := /bin/bash
 
 TARGETS := \
 	help \
+	clean \
 	docker \
 	test \
 
 HELPS := \
 	"Show this help and exit" \
+	"Remove all build artifacts" \
 	"Run the Docker container interactively" \
 	"Test everything" \
 
@@ -46,6 +48,12 @@ help:
 	&& for (( i=0; i<$${#TARGETS[@]}; i++ )); do \
 		printf " * %-20s - %s\n" "$${TARGETS[$$i]}" "$${HELPS[$$i]}"; \
 	done
+
+.PHONY: clean
+clean: docker-image
+	@docker run $(DOCKER_PARAMS) bash -c "rm -rf \
+		$(CMAKE_BIN_DIR) \
+	"
 
 .PHONY: docker
 docker: docker-image
