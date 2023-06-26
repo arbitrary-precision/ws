@@ -32,9 +32,9 @@ DOCKER_PARAMS := \
 	-h ap \
 	$(DOCKER_IMAGE)
 
-CMAKE_BIN_DIR := /ws/bin
-CMAKE_LOG_DIR := ${CMAKE_BIN_DIR}/log
 CMAKE_SRC_DIR := /ws
+CMAKE_BIN_DIR := $(CMAKE_SRC_DIR)/bin
+CMAKE_LOG_DIR := ${CMAKE_BIN_DIR}/log
 
 #
 # Add definitions for callable targets below.
