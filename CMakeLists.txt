@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: (c) 2023 Volodymyr Zakalyk <volodymyr.zakalyk@gmail.com>
+# SPDX-License-Identifier: MIT
+
 cmake_minimum_required(VERSION 3.22)
 
 #
