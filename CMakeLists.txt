@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Set defaults.
+#
+# Project.
+#
 set(CMAKE_C_STANDARD 17 CACHE STRING "C standard")
 set(CMAKE_C_COMPILER clang CACHE STRING "C compiler")
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
@@ -8,10 +10,11 @@ set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
 set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ compiler")
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-# Define project.
 project(ap C CXX)
 
+#
 # gtest.
+#
 include(FetchContent)
 FetchContent_Declare(
     gtest
@@ -20,9 +23,12 @@ FetchContent_Declare(
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings.
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
 FetchContent_MakeAvailable(gtest)
 
+#
 # test.
+#
 set(TEST_SRC_DIR "${CMAKE_SOURCE_DIR}/src/test")
 
 add_executable(test
