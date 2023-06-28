@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: (c) 2023 Volodymyr Zakalyk <volodymyr.zakalyk@gmail.com>
+# SPDX-License-Identifier: MIT
+
 FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive

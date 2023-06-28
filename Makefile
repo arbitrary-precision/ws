@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: (c) 2023 Volodymyr Zakalyk <volodymyr.zakalyk@gmail.com>
+# SPDX-License-Identifier: MIT
+
 SHELL := /bin/bash
 
 #
