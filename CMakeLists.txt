@@ -45,8 +45,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
 set(INCLUDE_DIRS_GTEST
-    "${CMAKE_SOURCE_DIR}/src/googletest/include"
-    "${CMAKE_SOURCE_DIR}/src/googletest/include/gtest"
+    "${CMAKE_SOURCE_DIR}/src/gtest/googletest/include"
+    "${CMAKE_SOURCE_DIR}/src/gtest/googletest/include/gtest"
 )
 
 #
