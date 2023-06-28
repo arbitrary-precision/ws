@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: (c) 2023 Volodymyr Zakalyk <volodymyr.zakalyk@gmail.com>
+# SPDX-License-Identifier: MIT
+
+# Run manually to reformat a file:
+# clang-format -i --style=file <file>
+Language:                                 Cpp
+BasedOnStyle:                             Chromium
+BreakBeforeBraces:                        Allman
+ReflowComments:                           false
