@@ -16,6 +16,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 project(ap C CXX)
 
 #
+# ap.
+#
+set(INCLUDE_DIRS_AP
+    "${CMAKE_SOURCE_DIR}/src/ap"
+)
+
+#
 # gtest.
 #
 include(FetchContent)
