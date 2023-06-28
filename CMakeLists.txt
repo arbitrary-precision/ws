@@ -23,6 +23,14 @@ set(INCLUDE_DIRS_AP
 )
 
 #
+# bmp.
+#
+set(INCLUDE_DIRS_BMP
+    "${CMAKE_SOURCE_DIR}/src/bmp/include"
+    "${CMAKE_SOURCE_DIR}/src/bmp/include/boost/multiprecision"
+)
+
+#
 # gtest.
 #
 include(FetchContent)
