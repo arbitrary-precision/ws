@@ -35,6 +35,59 @@ target_include_directories(libbmp INTERFACE
 )
 
 #
+# libgmp
+#
+set(GMP_PREFIX "${CMAKE_BINARY_DIR}")
+set(GMP_SOURCE_DIR "${GMP_PREFIX}/gmp/src")
+set(GMP_BINARY_DIR "${GMP_PREFIX}/gmp/bin")
+set(GMP_INSTALL_DIR "${GMP_PREFIX}")
+set(GMP_C_FLAGS "-std=c${CMAKE_C_STANDARD} ${CMAKE_C_FLAGS}")
+set(GMP_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD} ${CMAKE_CXX_FLAGS}")
+set(GMP_DOWNLOAD_COMMAND cp -RaT ${CMAKE_SOURCE_DIR}/src/gmp ${GMP_SOURCE_DIR})
+set(GMP_CONFIGURE_COMMAND true
+    && cd ${GMP_BINARY_DIR}
+    && ${GMP_SOURCE_DIR}/configure
+    --prefix=${GMP_INSTALL_DIR}
+    --disable-shared
+    --enable-cxx
+    ABI=64
+    CC=${CMAKE_C_COMPILER}
+    CFLAGS=${GMP_C_FLAGS}
+    CXX=${CMAKE_CXX_COMPILER}
+    CXXFLAGS=${GMP_CXX_FLAGS}
+)
+set(GMP_BUILD_COMMAND make)
+set(GMP_INSTALL_COMMAND make install)
+
+# Target for building.
+include(ExternalProject)
+ExternalProject_Add(
+    gmp
+    PREFIX ${GMP_PREFIX}
+    SOURCE_DIR ${GMP_SOURCE_DIR}
+    BINARY_DIR ${GMP_BINARY_DIR}
+    INSTALL_DIR ${GMP_INSTALL_DIR}
+    DOWNLOAD_COMMAND ${GMP_DOWNLOAD_COMMAND}
+    CONFIGURE_COMMAND ${GMP_CONFIGURE_COMMAND}
+    BUILD_COMMAND ${GMP_BUILD_COMMAND}
+    INSTALL_COMMAND ${GMP_INSTALL_COMMAND}
+)
+
+# Target for linking.
+add_library(libgmp INTERFACE)
+
+add_dependencies(libgmp gmp)
+
+target_link_libraries(libgmp INTERFACE
+    "${GMP_INSTALL_DIR}/lib/libgmpxx.a"
+    "${GMP_INSTALL_DIR}/lib/libgmp.a"
+)
+
+target_include_directories(libgmp INTERFACE
+    "${GMP_INSTALL_DIR}/include"
+)
+
+#
 # libgtest
 #
 include(FetchContent)

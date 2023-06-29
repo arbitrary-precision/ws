@@ -18,5 +18,9 @@ RUN ln -sf /bin/bash /bin/sh
 
 # Install dependencies.
 RUN apt-get install -y \
+    # GMP.
+    m4 \
+    texinfo \
+    # General.
     cmake \
     clang
