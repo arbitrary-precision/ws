@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 #
-# Project.
+# AP - general configuration
 #
 set(CMAKE_C_STANDARD 17 CACHE STRING "C standard")
 set(CMAKE_C_COMPILER clang CACHE STRING "C compiler")
@@ -13,25 +13,29 @@ set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
 set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ compiler")
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-project(ap C CXX)
+project(AP C CXX)
 
 #
-# ap.
+# libap
 #
-set(INCLUDE_DIRS_AP
+add_library(libap INTERFACE)
+
+target_include_directories(libap INTERFACE
     "${CMAKE_SOURCE_DIR}/src/ap"
 )
 
 #
-# bmp.
+# libbmp
 #
-set(INCLUDE_DIRS_BMP
+add_library(libbmp INTERFACE)
+
+target_include_directories(libbmp INTERFACE
     "${CMAKE_SOURCE_DIR}/src/bmp/include"
     "${CMAKE_SOURCE_DIR}/src/bmp/include/boost/multiprecision"
 )
 
 #
-# gtest.
+# libgtest
 #
 include(FetchContent)
 FetchContent_Declare(
@@ -44,20 +48,28 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(gtest)
 
-set(INCLUDE_DIRS_GTEST
+add_library(libgtest INTERFACE)
+
+target_link_libraries(libgtest INTERFACE
+    GTest::gtest_main
+)
+
+target_include_directories(libgtest INTERFACE
     "${CMAKE_SOURCE_DIR}/src/gtest/googletest/include"
     "${CMAKE_SOURCE_DIR}/src/gtest/googletest/include/gtest"
 )
 
 #
-# test.
+# test
 #
-set(TEST_SRC_DIR "${CMAKE_SOURCE_DIR}/src/test")
+set(TEST_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/test")
 
 add_executable(test
-    "${TEST_SRC_DIR}/test.cpp"
+    "${TEST_SOURCE_DIR}/test.cpp"
 )
 
-target_link_libraries(test
-    GTest::gtest_main
+target_link_libraries(test PRIVATE
+    libgtest
+    libbmp
+    libap
 )
